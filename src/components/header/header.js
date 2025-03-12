@@ -40,7 +40,6 @@ const Header = () => {
         <nav className="navbar">
           <ul className="nav-links">
             <li><Link href="/">Home</Link></li>      
-            <li><Link href="/about">About</Link></li> 
             {user ? (
               <>
               <li><Link href="/dashboard">Dashboard</Link></li>
@@ -54,10 +53,18 @@ const Header = () => {
               </li>
 
               <li className="dropdown" onClick={() => toggleDropdown("matches")}>
-                <span>Matches ▼</span>
+                <span>Start Matching ▼</span>
                 <ul className={`dropdown-menu ${openDropdown === "matches" ? "show" : ""}`}>
-                  <li><Link href="/tenant_matches">Tenant Matches</Link></li>
-                  <li><Link href="/landlord_matches">Landlord Matches</Link></li>
+                  <li><Link href="/tenant_matches">Find Listings</Link></li>
+                  <li><Link href="/landlord_matches">Find Tenants</Link></li>
+                </ul>
+              </li>
+
+              <li className="dropdown" onClick={() => toggleDropdown("matches")}>
+                <span>Accepted Matches ▼</span>
+                <ul className={`dropdown-menu ${openDropdown === "matches" ? "show" : ""}`}>
+                  <li><Link href="/tenant_accepted_matches">Listing's You Matched</Link></li>
+                  <li><Link href="/landlord_accepted_matches">Tenant's You Matched</Link></li>
                 </ul>
               </li>
 

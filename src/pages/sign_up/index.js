@@ -1,29 +1,20 @@
+import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';   
 
 const SignUp = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        console.log('Submitting form');
-
-        const trimmedEmail = email.trim();
-        const trimmedPassword = password.trim();
-        const trimmedFirstName = firstName.trim();
-        const trimmedLastName = lastName.trim();
-        const trimmedPhoneNumber = phoneNumber.trim();
-
+    const onSubmit = async (data) => {
         setErrorMessage("");
         setIsLoading(true);
         
@@ -31,7 +22,7 @@ const SignUp = () => {
             const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({ phoneNumber: trimmedPhoneNumber, firstName: trimmedFirstName, lastName: trimmedLastName, email: trimmedEmail, password: trimmedPassword }),
+                body: JSON.stringify(data),
             });
 
             const result = await response.json();
@@ -46,15 +37,12 @@ const SignUp = () => {
 
             router.push('/login');  
 
-            setErrorMessage("");
-            setIsLoading(false);
-
         } catch (error) {
             setErrorMessage('Error: Could Not Insert New User');
             console.error("Signup failed:", error);
             setIsLoading(false);
         }
-    }
+    };
 
 
     return (
@@ -64,18 +52,17 @@ const SignUp = () => {
             {/* Error Message Display */}
             {errorMessage && <div className="errorMessage">{errorMessage}</div>}
     
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="formStyle">
                     <label htmlFor="firstName">First Name</label>
                     <input
                         type="text"
                         id="firstName"
                         name="firstName"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
                         placeholder="Enter your first name"
-                        required
+                        {...register("firstName", { required: "First name is required" })}
                     />
+                    {errors.firstName && <p className="error">{errors.firstName.message}</p>}
                 </div>
 
                 <div className="formStyle">
@@ -83,12 +70,10 @@ const SignUp = () => {
                     <input
                         type="text"
                         id="lastName"
-                        name="lastName"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
                         placeholder="Enter your last name"
-                        required
+                        {...register("lastName", { required: "Last name is required" })}
                     />
+                    {errors.lastName && <p className="error">{errors.lastName.message}</p>}
                 </div>
 
                 <div className="formStyle">
@@ -96,41 +81,55 @@ const SignUp = () => {
                     <input
                         type="tel"
                         id="phoneNumber"
-                        name="phoneNumber"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
                         placeholder="Enter your phone number"
-                        required
+                        {...register("phoneNumber", {
+                        required: "Phone number is required",
+                        pattern: {
+                            value: /^[0-9]{10}$/,
+                            message: "Phone number must be 10 digits",
+                        },
+                        })}
                     />
+                    {errors.phoneNumber && <p className="error">{errors.phoneNumber.message}</p>}
                 </div>
 
                 <div className="formStyle">
                     <label htmlFor="email">Email</label>
-                    <input 
+                    <input
                         type="email"
                         id="email"
-                        name="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email"
-                        required
+                        {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                            message: "Invalid email format",
+                        },
+                        })}
                     />
+                    {errors.email && <p className="error">{errors.email.message}</p>}
                 </div>
     
                 <div className="formStyle">
                     <label htmlFor="password">Password</label>
-                    <input 
+                    <input
                         type="password"
                         id="password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        required
+                        {...register("password", {
+                        required: "Password is required",
+                        minLength: {
+                            value: 6,
+                            message: "Password must be at least 6 characters",
+                        },
+                        })}
                     />
+                    {errors.password && <p className="error">{errors.password.message}</p>}
                 </div>
     
-                <button type="submit" disabled={isLoading}>{isLoading ? "Signing Up..." : "Sign Up"}</button>
+                <button type="submit" disabled={isLoading}>
+                    {isLoading ? "Signing Up..." : "Sign Up"}
+                </button>
     
                 <div className="signUpLink">
                     <Link href="/login">Already have an account? Log In Here</Link>

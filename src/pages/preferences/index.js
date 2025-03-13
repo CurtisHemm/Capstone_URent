@@ -1,23 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
 
 const preferences = () => {
     const [user, setUser] = useState(null);  
     const [preferenceId, setPreferenceId] = useState(null);
-    const [location, setLocation] = useState('');
-    const [maxBudget, setMaxBudget] = useState(null);
-    const [petsAllowed, setPetsAllowed] = useState(false);
-    const [bedCount, setBedCount] = useState(null);
-    const [bathCount, setBathCount] = useState(null);
-    const [smokingAllowed, setSmokingAllowed] = useState(false);
-    const [preferredName, setPreferredName] = useState('');
-    const [photoUrl, setPhotoUrl] = useState('');
-    const [amenities, setAmenities] = useState('');
-    const [profileBio, setProfileBio] = useState('');
-    const [preferencePrivate, setPreferencePrivate] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
+
+    const { 
+        register, 
+        handleSubmit, 
+        reset, 
+        formState: { errors } 
+    } = useForm();
     
     useEffect(() => {
         const fetchUserSession = async () => {
@@ -40,9 +37,6 @@ const preferences = () => {
             const result = await response.json();
 
             console.log("API Response:", result); // Logs the full API response
-            console.log("Response status:", response.status); // Logs the HTTP status
-            console.log("Response OK:", response.ok); // Logs whether response.ok is true
-            console.log("Preference:", result.preference); // Logs the actual preference data
 
             if (!response.ok) {
                 console.error("Response not OK:", response.status, result);
@@ -57,40 +51,29 @@ const preferences = () => {
             console.log("✅ Preferences found! Updating state.");
             const pref = result.preference;
             setPreferenceId(pref.preference_id);
-            setPreferredName(pref.preferred_name || '');
-            setPhotoUrl(pref.photo_url || '');
-            setLocation(pref.location || '');
-            setMaxBudget(pref.max_budget);
-            setPetsAllowed(pref.pets_allowed);
-            setBedCount(pref.bed_count);
-            setBathCount(pref.bath_count);
-            setSmokingAllowed(pref.smoking_allowed);
-            setAmenities(pref.amenities || '');
-            setProfileBio(pref.profile_bio || '');
-            setPreferencePrivate(pref.is_pref_private);
+            reset({
+                preferredName: pref.preferred_name || '',
+                photoUrl: pref.photo_url || '',
+                location: pref.location || '',
+                maxBudget: pref.max_budget || '',
+                petsAllowed: pref.pets_allowed,
+                bedCount: pref.bed_count || '',
+                bathCount: pref.bath_count || '',
+                smokingAllowed: pref.smoking_allowed,
+                amenities: pref.amenities || '',
+                profileBio: pref.profile_bio || '',
+                preferencePrivate: pref.is_pref_private,
+            });
         } catch (error) {
             console.error("Error fetching preferences:", error);
         }
     };
-    
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const trimmedLocation = location.trim();
-        const trimmedAmenities = amenities.trim();
-        const trimmedProfileBio = profileBio.trim();
-        const trimmedPreferredName = preferredName.trim();
-        const trimmedPhotoUrl = photoUrl.trim();
-
+    const onSubmit = async (data) => {
         setErrorMessage('');
         setSuccessMessage('');
 
-        if (!trimmedLocation) {
-            setErrorMessage('You must enter a preferred location');
-        }
-
-        if (maxBudget < 0 ) {
+        if (data.maxBudget < 0 ) {
             setErrorMessage('Budget must be a positive number');
         } 
 
@@ -98,36 +81,21 @@ const preferences = () => {
             const apiFileLocation = preferenceId ? `/api/edit_preference` : `/api/add_preference`;
             const responeMethod = preferenceId ? 'PUT' : 'POST';
 
-
             const response = await fetch(apiFileLocation, {
                 method: responeMethod,
                 headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({ preferenceId, 
-                    preferredName: trimmedPreferredName, 
-                    photoUrl: trimmedPhotoUrl, 
-                    location: trimmedLocation, 
-                    maxBudget, 
-                    petsAllowed, 
-                    bedCount, 
-                    bathCount, 
-                    amenities: trimmedAmenities, 
-                    userId: user.user_id, 
-                    smokingAllowed, 
-                    preferencePrivate, 
-                    profileBio: trimmedProfileBio 
-                })
+                body: JSON.stringify({ data, userId: user.user_id, preferenceId })
             });
 
             const result = await response.json();
             console.log("Server Response:", result);
 
             if (!response.ok) {
-                console.error("Signup Error:", result); 
-                setErrorMessage('Error: Could Not Add preference');
+                setErrorMessage('Error: Could not save preferences');
+            } else {
+                setSuccessMessage('Preferences saved successfully!');
+                if (!preferenceId) setPreferenceId(result.preference_id);
             }
-
-            console.log("Preference updated:", result);
-            if (!preferenceId) setPreferenceId(result.preference_id);
         } catch (error) {
             setErrorMessage('Error: Could Not Add preference');
             console.error("Preference Error:", error);
@@ -143,121 +111,56 @@ const preferences = () => {
             {errorMessage && <div className="errorMessage">{errorMessage}</div>}
             {successMessage && <div className="successMessage">{successMessage}</div>}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='formStyle'>
                     <label>Preferred Name</label>
-                    <input
-                        type='text'
-                        value={preferredName}
-                        onChange={(e) => setPreferredName(e.target.value)}
-                        placeholder='Enter your preferred display name'
-                    />
-                </div>
-
-                <div className='formStyle'>
-                    <label>Profile Photo URL</label>
-                    <input
-                        type='url'
-                        value={photoUrl}
-                        onChange={(e) => setPhotoUrl(e.target.value)}
-                        placeholder='Enter a link to your profile picture'
-                    />
+                    <input {...register('preferredName')} placeholder='Enter your preferred display name' />
                 </div>
 
                 <div className='formStyle'>
                     <label>Prefered Location City</label>
-                    <input
-                        type='text'
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder='Enter the city location you want to live'
-                        required
-                    />
+                    <input {...register('location', { required: 'Location is required' })} placeholder='Enter city location' />
+                    {errors.location && <p className='error'>{errors.location.message}</p>}
                 </div>
 
                 <div className='formStyle'>
-                    <label>Max Budget $/month</label>
-                    <input
-                        type='number'
-                        value={maxBudget === null ? '' : maxBudget} 
-                        onChange={(e) => {
-                            const value = e.target.value.trim();
-                            setMaxBudget(value === '' ? null : parseFloat(value));
-                        }}
-                        placeholder='Enter your max budget'
-                    />
+                    <label>Max Budget ($/month)</label>
+                    <input type='number' {...register('maxBudget')} placeholder='Enter max budget' />
                 </div>
 
                 <div className='formStyle'>
                     <label>Pets Allowed</label>
-                    <input
-                        type='checkbox'
-                        checked={petsAllowed} 
-                        onChange={(e) => setPetsAllowed(e.target.checked)}
-                    />
+                    <input type='checkbox' {...register('petsAllowed')} />
                 </div>
 
                 <div className='formStyle'>
-                    <label>Number of Bedrooms</label>
-                    <input
-                        type='number'
-                        value={bedCount === null ? '' : bedCount} 
-                        onChange={(e) => {
-                            const value = e.target.value.trim();
-                            setBedCount(value === '' ? null : parseFloat(value));
-                        }}
-                        placeholder='Enter preferred number of bedrooms'
-                    />
+                    <label>Bedrooms</label>
+                    <input type='number' {...register('bedCount')} placeholder='Enter number of bedrooms' />
                 </div>
 
                 <div className='formStyle'>
-                    <label>Number of Bathrooms</label>
-                    <input
-                        type='number'
-                        value={bathCount === null ? '' : bathCount}
-                        onChange={(e) => {
-                            const value = e.target.value.trim();
-                            setBathCount(value === '' ? null : parseInt(value, 10));
-                        }}
-                        placeholder='Enter preferred number of bathrooms'
-                    />
+                    <label>Bathrooms</label>
+                    <input type='number' {...register('bathCount')} placeholder='Enter number of bathrooms' />
                 </div>
 
                 <div className='formStyle'>
                     <label>Smoking Allowed</label>
-                    <input
-                        type='checkbox'
-                        checked={smokingAllowed}
-                        onChange={(e) => setSmokingAllowed(e.target.checked)}
-                    />
+                    <input type='checkbox' {...register('smokingAllowed')} />
                 </div>
 
                 <div className='formStyle'>
                     <label>Amenities</label>
-                    <input
-                        type='text'
-                        value={amenities}
-                        onChange={(e) => setAmenities(e.target.value)}
-                        placeholder='List preferred amenities (comma-separated)'
-                    />
+                    <input {...register('amenities')} placeholder='List preferred amenities' />
                 </div>
 
                 <div className='formStyle'>
                     <label>Profile Bio</label>
-                    <textarea
-                        value={profileBio}
-                        onChange={(e) => setProfileBio(e.target.value)}
-                        placeholder='Tell landlords about yourself'
-                    />
+                    <textarea {...register('profileBio')} placeholder='Tell landlords about yourself' />
                 </div>
 
                 <div className='formStyle'>
                     <label>Keep Preferences Private</label>
-                    <input
-                        type='checkbox'
-                        checked={preferencePrivate}
-                        onChange={(e) => setPreferencePrivate(e.target.checked)}
-                    />
+                    <input type='checkbox' {...register('preferencePrivate')} />
                 </div>
 
                 <button type="submit">{preferenceId ? "Update Preferences" : "Save Preferences"}</button>

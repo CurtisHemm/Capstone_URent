@@ -13,11 +13,26 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { preferredName, photoUrl, location, maxBudget, petsAllowed, bedCount, bathCount, amenities, userId, smokingAllowed, preferencePrivate, profileBio } = req.body;
+    const { data, userId } = req.body;
 
-    if (!userId || !location) {
-        return res.status(400).json({ error: "User ID and location are required"});
+    console.log(data);
+
+    if (!data || !userId) {
+        return res.status(400).json({ error: "Invalid request: Missing data or userId"});
     }
+
+    const { 
+        preferredName, 
+        location, 
+        maxBudget, 
+        petsAllowed, 
+        bedCount, 
+        bathCount, 
+        amenities, 
+        smokingAllowed, 
+        preferencePrivate, 
+        profileBio 
+    } = data;
 
     try {
         const { data: existingPreference, error: fetchError } = await supabase
@@ -41,7 +56,7 @@ export default async function handler(req, res) {
                 {
                     user_id: userId, 
                     preferred_name: preferredName || null,
-                    photo_url: photoUrl || null, 
+                    photo_url: null, 
                     location: location,
                     max_budget: maxBudget || null, 
                     pets_allowed: petsAllowed,

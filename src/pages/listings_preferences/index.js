@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
 
 const listings_preferences = () => {
     const [user, setUser] = useState(null);  

@@ -1,41 +1,23 @@
+import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';   
 
-
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Validates email
-  const isEmailValid = (email) => {
-    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return regex.test(email);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const emailTrimmed = email.trim();
-    const passwordTrimmed = password.trim();
+  const onSubmit = async (data) => {
 
     // Reset error message
     setErrorMessage('');
-
-    // If there is no email or password filled in
-    if (!emailTrimmed || !passwordTrimmed) {
-      setErrorMessage('Please fill in both fields');
-      return;
-    }
-
-    // validate the email
-    if (!isEmailValid(emailTrimmed)) {
-        setErrorMessage('Please enter a valid email address');
-        return;
-    }
 
     // When login begins
     setIsLoading(true);
@@ -44,7 +26,7 @@ const Login = () => {
         const response = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({ email: emailTrimmed, password: passwordTrimmed }),
+            body: JSON.stringify(data),
             credentials: 'include'
         });
 
@@ -60,11 +42,10 @@ const Login = () => {
         });
 
     } catch (error) {
-        setErrorMessage('Error: ', error.message);
+        setErrorMessage(error.message || "Login failed");
         setIsLoading(false);
     }
 
-    setIsLoading(false);
   };
 
   return (
@@ -74,18 +55,22 @@ const Login = () => {
         {/* Error Message Display */}
         {errorMessage && <div className="errorMessage">{errorMessage}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <div className="formStyle">
                 <label htmlFor="email">Email</label>
                 <input 
                     type="email"
                     id="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    required
+                    {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                          value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                          message: "Invalid email format",
+                        },
+                      })}
                 />
+                {errors.email && <p className="error">{errors.email.message}</p>}
             </div>
 
             <div className="formStyle">
@@ -93,15 +78,15 @@ const Login = () => {
                 <input 
                     type="password"
                     id="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    required
+                    {...register("password", { required: "Password is required" })}
                 />
+                {errors.password && <p className="error">{errors.password.message}</p>}
             </div>
 
-            <button type="submit" disabled={isLoading}>{isLoading ? "Logging in..." : "Login"}</button>
+            <button type="submit" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
+            </button>
 
             <div className="signUpLink">
                 <Link href="/sign_up">No Account? Sign Up Here</Link>

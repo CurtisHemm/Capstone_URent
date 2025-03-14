@@ -12,10 +12,10 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { preferenceId, preferredName, photoUrl, location, maxBudget, petsAllowed, bedCount, bathCount, amenities, smokingAllowed, preferencePrivate, profileBio } = req.body;
+    const { data, preferenceId} = req.body;
 
-    if (!preferenceId || !location) {
-        return res.status(400).json({ error: "Preference ID, and location are required"});
+    if (!preferenceId || !data) {
+        return res.status(400).json({ error: "Missing details"});
     }
     
     try {
@@ -32,17 +32,17 @@ export default async function handler(req, res) {
         const { error: updateError } = await supabase
             .from('preferences_table')
             .update({ 
-                preferred_name: preferredName || null,
-                photo_url: photoUrl || null, 
-                location: location,
-                max_budget: maxBudget || null, 
-                pets_allowed: petsAllowed,
-                bed_count: bedCount || null,
-                bath_count: bathCount || null,
-                smoking_allowed: smokingAllowed,
-                is_pref_private: preferencePrivate,
-                amenities: amenities || null,
-                profile_bio: profileBio || null, 
+                preferred_name: data.preferredName || null,
+                // photo_url: photoUrl || null, 
+                location: data.location,
+                max_budget: data.maxBudget || null, 
+                pets_allowed: data.petsAllowed,
+                bed_count: data.bedCount || null,
+                bath_count: data.bathCount || null,
+                smoking_allowed: data.smokingAllowed,
+                is_pref_private: data.preferencePrivate,
+                amenities: data.amenities || null,
+                profile_bio: data.profileBio || null, 
             })
             .eq('preference_id', preferenceId);
 

@@ -12,10 +12,10 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { listingId, photoUrl, streetAddress, location, askingPrice, bedCount, bathCount, amenities, petsAllowed, smokingAllowed, availability, listingBio, listingPrivate } = req.body;
+    const { listingId, data } = req.body;
 
 
-    if (!listingId || !location || !streetAddress || !askingPrice || !bedCount || !bathCount || !amenities) {
+    if (!listingId || !data) {
         return res.status(400).json({ error: "Missing details"});
     }
     
@@ -33,18 +33,18 @@ export default async function handler(req, res) {
         const { error: updateError } = await supabase
             .from('listings_table')
             .update({ 
-                photo_url: photoUrl || null,
-                street_address: streetAddress,
-                location: location,
-                asking_price: askingPrice,
-                bed_count: bedCount,
-                bath_count: bathCount,
-                amenities: amenities,
-                pets_allowed: petsAllowed,
-                smoking_allowed: smokingAllowed,
-                availability: availability || null,
-                listing_bio: listingBio || null,
-                is_private: listingPrivate   
+                photo_url: data.photoUrl || null,
+                street_address: data.streetAddress,
+                location: data.listingLocation,
+                asking_price: data.askingPrice,
+                bed_count: data.listingBedCount,
+                bath_count: data.listingBathCount,
+                amenities: data.listingAmenities,
+                pets_allowed: data.listingPetsAllowed,
+                smoking_allowed: data.listingSmokingAllowed,
+                availability: data.availability || null,
+                listing_bio: data.listingBio || null,
+                is_private: data.listingPrivate   
             })
             .eq('listing_id', listingId);
 

@@ -114,6 +114,8 @@ const editListing = () => {
             }
 
             setSuccessMessage('Listing updated successfully!');
+
+            router.push('/all_listings');  
         } catch (error) {
             console.error("Error updating listing:", error);
             setErrorMessage('Error updating listing');

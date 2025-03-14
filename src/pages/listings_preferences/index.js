@@ -4,21 +4,15 @@ import { useForm } from 'react-hook-form';
 
 const listings_preferences = () => {
     const [user, setUser] = useState(null);  
-    const [photoUrl, setPhotoUrl] = useState('');
-    const [streetAddress, setStreetAddress] = useState('');
-    const [listingLocation, setListingLocation] = useState('');
-    const [askingPrice, setAskingPrice] = useState(null);
-    const [listingBedCount, setListingBedCount] = useState(null);
-    const [listingBathCount, setListingBathCount] = useState(null);
-    const [listingAmenities, setlistingAmenities] = useState('');
-    const [listingPetsAllowed, setListingPetsAllowed] = useState(false);
-    const [listingSmokingAllowed, setListingSmokingAllowed] = useState(false);
-    const [availability, setAvailability] = useState(null);
-    const [listingBio, setListingBio] = useState('');
-    const [listingPrivate, setListingPrivate] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
+
+    const { 
+        register, 
+        handleSubmit, 
+        formState: { errors } 
+    } = useForm();
 
     useEffect(() => {
         const fetchUserSession = async () => {
@@ -34,23 +28,11 @@ const listings_preferences = () => {
         }, [router]);
 
 
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-    
-            const trimmedStreetAddress = streetAddress.trim();
-            const trimmedLocation = listingLocation.trim();
-            const trimmedAmenities = listingAmenities.trim();
-            const trimmedListingBio = listingBio.trim();
-            const trimmedPhotoUrl = photoUrl.trim();
-    
+        const onSubmit = async (data) => {
             setErrorMessage('');
             setSuccessMessage('');
-    
-            if (!trimmedLocation || !trimmedStreetAddress || !askingPrice || !listingBedCount || !listingBathCount || !listingAmenities) {
-                setErrorMessage('Address, city, asking price, bed count, bath count, and amenities must be filled in!');
-            }
 
-            if (askingPrice < 0) {
+            if (data.askingPrice < 0) {
                 setErrorMessage('Asking price needs to be a positive number');
             }
     
@@ -58,44 +40,22 @@ const listings_preferences = () => {
                 const response = await fetch('/api/add_listing', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json'},
-                    body: JSON.stringify({ photoUrl: trimmedPhotoUrl || null,
-                        streetAddress: trimmedStreetAddress,
-                        location: trimmedLocation,
-                        askingPrice, 
-                        bedCount: listingBedCount,
-                        bathCount: listingBathCount,
-                        amenities: trimmedAmenities,
-                        petsAllowed: listingPetsAllowed,
-                        smokingAllowed: listingSmokingAllowed,
-                        availability: availability || null,
-                        listingBio: trimmedListingBio || null,
-                        userId: user.user_id,
-                        listingPrivate
-                    })
+                    body: JSON.stringify({ data, userId: user.user_id })
                 });
     
+                console.log(user.user_id);
                 const result = await response.json();
                 console.log("Server Response:", result);
     
                 if (!response.ok) {
                     console.error("Listing Error:", result); 
                     setErrorMessage('Error: Could Not Add listing');
+                    return;
                 }
     
                 console.log("Listing Added:", result);
-                setSuccessMessage('Listing successfully added!');
-                setPhotoUrl('');
-                setStreetAddress('');
-                setListingLocation('');
-                setAskingPrice('');
-                setListingBedCount('');
-                setListingBathCount('');
-                setlistingAmenities('');
-                setListingPetsAllowed(false);
-                setListingSmokingAllowed(false);
-                setAvailability('');
-                setListingBio('');
-                setListingPrivate(false);
+                
+                router.push('/all_listings');  
             } catch (error) {
                 setErrorMessage('Error: Could Not Add Listing');
                 console.error("Listing Error:", error);
@@ -111,123 +71,72 @@ const listings_preferences = () => {
                 {errorMessage && <div className="errorMessage">{errorMessage}</div>}
                 {successMessage && <div className="successMessage">{successMessage}</div>}
 
-                <form onSubmit={handleSubmit}>
-                    <div className='formStyle'>
-                        <label>Photo URL</label>
-                        <input 
-                            type='text' 
-                            value={photoUrl || ''} 
-                            onChange={(e) => setPhotoUrl(e.target.value)} 
-                        />
-                    </div>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                <div className='formStyle'>
+                    <label>Photo URL</label>
+                    <input type='text' {...register('photoUrl')} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Street Address</label>
-                        <input 
-                            type='text' 
-                            value={streetAddress || ''} 
-                            onChange={(e) => setStreetAddress(e.target.value)} 
-                            required 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Street Address</label>
+                    <input type='text' {...register('streetAddress', { required: true })} />
+                    {errors.streetAddress && <span>This field is required</span>}
+                </div>
 
-                    <div className='formStyle'>
-                        <label>City</label>
-                        <input 
-                            type='text' 
-                            value={listingLocation || ''} 
-                            onChange={(e) => setListingLocation(e.target.value)} 
-                            required 
-                            />
-                    </div>
+                <div className='formStyle'>
+                    <label>City</label>
+                    <input type='text' {...register('listingLocation', { required: true })} />
+                    {errors.listingLocation && <span>This field is required</span>}
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Asking Price</label>
-                        <input 
-                            type='number' 
-                            value={askingPrice || ''} 
-                            onChange={(e) => setAskingPrice(e.target.value)} 
-                            required 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Asking Price</label>
+                    <input type='number' {...register('askingPrice', { required: true, min: 0 })} />
+                    {errors.askingPrice && <span>Must be a positive number</span>}
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Bedrooms</label>
-                        <input 
-                            type='number' 
-                            value={listingBedCount || ''} 
-                            onChange={(e) => setListingBedCount(e.target.value)} 
-                            required 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Bedrooms</label>
+                    <input type='number' {...register('listingBedCount', { required: true })} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Bathrooms</label>
-                        <input 
-                            type='number' 
-                            value={listingBathCount || ''} 
-                            onChange={(e) => setListingBathCount(e.target.value)} 
-                            required 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Bathrooms</label>
+                    <input type='number' {...register('listingBathCount', { required: true })} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Amenities</label>
-                        <input 
-                            type='text' 
-                            value={listingAmenities || ''} 
-                            onChange={(e) => setlistingAmenities(e.target.value)} 
-                            required 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Amenities</label>
+                    <input type='text' {...register('listingAmenities')} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Pets Allowed</label>
-                        <input 
-                            type='checkbox' 
-                            checked={listingPetsAllowed ?? false} 
-                            onChange={(e) => setListingPetsAllowed(e.target.checked)} 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Pets Allowed</label>
+                    <input type='checkbox' {...register('listingPetsAllowed')} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Smoking Allowed</label>
-                        <input 
-                            type='checkbox' 
-                            checked={listingSmokingAllowed ?? false} 
-                            onChange={(e) => setListingSmokingAllowed(e.target.checked)} 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Smoking Allowed</label>
+                    <input type='checkbox' {...register('listingSmokingAllowed')} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Availability</label>
-                        <input 
-                            type='date' 
-                            value={availability || ''} 
-                            onChange={(e) => setAvailability(e.target.value)} 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Availability</label>
+                    <input type='date' {...register('availability')} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Listing Bio</label>
-                        <textarea 
-                            value={listingBio || ''} 
-                            onChange={(e) => setListingBio(e.target.value)} 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Listing Bio</label>
+                    <textarea {...register('listingBio')} />
+                </div>
 
-                    <div className='formStyle'>
-                        <label>Private Listing</label>
-                        <input 
-                            type='checkbox' 
-                            checked={listingPrivate ?? false} 
-                            onChange={(e) => setListingPrivate(e.target.checked)} 
-                        />
-                    </div>
+                <div className='formStyle'>
+                    <label>Private Listing</label>
+                    <input type='checkbox' {...register('listingPrivate')} />
+                </div>
 
-                    <button type='submit'>Add Listing</button>
-
-                </form>
+                <button type='submit'>Add Listing</button>
+            </form>
             </div>
         )
 }

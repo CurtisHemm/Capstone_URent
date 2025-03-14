@@ -15,8 +15,6 @@ export default async function handler(req, res) {
 
     const { data, userId } = req.body;
 
-    console.log(data);
-
     if (!data || !userId) {
         return res.status(400).json({ error: "Invalid request: Missing data or userId"});
     }

@@ -64,6 +64,8 @@ const preferences = () => {
                 profileBio: pref.profile_bio || '',
                 preferencePrivate: pref.is_pref_private,
             });
+
+            setSuccessMessage('Preference Updated');
         } catch (error) {
             console.error("Error fetching preferences:", error);
         }

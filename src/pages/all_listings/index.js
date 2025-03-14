@@ -70,7 +70,7 @@ const AllListings = () => {
 
         {listings.length === 0 ? (
             <div className="signUpLink">
-                <Link href="/listings_preference">You have no listings. Add one here.</Link>
+                <Link href="/listings_preferences">You have no listings. Add one here.</Link>
             </div>
         ) : (
             <ul className="listings">

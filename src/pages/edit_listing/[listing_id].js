@@ -1,11 +1,13 @@
+import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 
 const editListing = () => {
+    const { user } = useFetchUserSession();
+
     const router = useRouter();
     const { listing_id } = router.query;
-    const [user, setUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
@@ -16,20 +18,6 @@ const editListing = () => {
         reset, 
         formState: { errors } 
     } = useForm();
-
-    useEffect(() => {
-        const fetchUserSession = async () => {
-            const response = await fetch('/api/session', { credentials: 'include' });
-            const data = await response.json();
-            if (data.user) {
-                setUser(data.user);  
-            } else {
-                router.push('/login');  
-            }
-        };
-    
-        fetchUserSession();
-        }, [router]);
 
     useEffect(() => {
         if (!listing_id || !user) return;

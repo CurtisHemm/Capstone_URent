@@ -1,41 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 const EditPassword = () => {
-  const [originalPassword, setOriginalPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const { user } = useFetchUserSession();  
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [user, setUser] = useState(null);  
-  const router = useRouter();
 
-  useEffect(() => {
-    const fetchUserSession = async () => {
-        const response = await fetch('/api/session', { credentials: 'include' });
-        const data = await response.json();
-        if (data.user) {
-            setUser(data.user);  
-        } else {
-            router.push('/login');  
-        }
-    };
+  const { 
+    register, 
+    handleSubmit, 
+    watch,
+    reset,
+    formState: { errors } 
+} = useForm();
 
-    fetchUserSession();
-    }, [router]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     setErrorMessage('');
     setSuccessMessage('');
 
-    if (!originalPassword || !newPassword || !confirmPassword) {
-        setErrorMessage("All Fields are required!");
-    }
+    const { originalPassword, newPassword, confirmPassword } = data;
 
     if (newPassword != confirmPassword) {
         setErrorMessage("Password Confirmation doesn't match New Password");
+        return;
     }
 
     const response = await fetch('/api/edit_password', {
@@ -44,15 +32,13 @@ const EditPassword = () => {
         body: JSON.stringify({ userId: user.user_id, originalPassword, newPassword }),
     });
 
-    const data = await response.json();
+    const result = await response.json();
 
     if (response.ok) {
         setSuccessMessage('Password updated successfully');
-        setOriginalPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        reset(); 
     } else {
-        setErrorMessage(data.error || 'Something went wrong');
+        setErrorMessage(result.error || 'Something went wrong');
     }
     };
 
@@ -65,38 +51,38 @@ const EditPassword = () => {
             {errorMessage && <div className='errorMessage'>{errorMessage}</div>}
             {successMessage && <div className='successMessage'>{successMessage}</div>}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='formStyle'>
                     <label>Original Password</label>
                     <input
                         type="password"
-                        value={originalPassword}
-                        onChange={(e) => setOriginalPassword(e.target.value)}
-                        placeholder='Enter you original password'
-                        required
+                        placeholder="Enter your original password"
+                        {...register("originalPassword", { required: "Original password is required" })}
                     />
+                    {errors.originalPassword && <p className="errorMessage">{errors.originalPassword.message}</p>}
                 </div>
 
                 <div className='formStyle'>
                     <label>New Password</label>
                     <input
                         type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder='Enter your new password'
-                        required
+                        placeholder="Enter your new password"
+                        {...register("newPassword", { required: "New password is required" })}
                     />
+                    {errors.newPassword && <p className="errorMessage">{errors.newPassword.message}</p>}
                 </div>
 
                 <div className='formStyle'>
                     <label>Confirm New Password</label>
                     <input
                         type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder='Retype your new password to confirm'
-                        required
+                        placeholder="Retype your new password to confirm"
+                        {...register("confirmPassword", { 
+                            required: "Password confirmation is required",
+                            validate: value => value === watch("newPassword") || "Passwords do not match"
+                        })}
                     />
+                    {errors.confirmPassword && <p className="errorMessage">{errors.confirmPassword.message}</p>}
                 </div>
 
                 <button type="submit">Change Password</button>

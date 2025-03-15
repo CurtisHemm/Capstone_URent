@@ -277,8 +277,8 @@ button:hover {
 }
 
 .listing-img {
-  width: 120px;
-  height: 80px;
+  width: 200px;
+  height: 140px;
   object-fit: cover;
   border-radius: 5px;
   margin-right: 15px;

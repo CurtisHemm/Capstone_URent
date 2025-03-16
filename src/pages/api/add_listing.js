@@ -13,16 +13,13 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { data, userId } = req.body;
-
-    console.log(data, userId);
+    const { data, userId, photoUrl } = req.body;
 
     if (!data || !userId) {
         return res.status(400).json({ error: "Invalid request: Missing data or userId"});
     }
 
     const {
-        photoUrl,
         streetAddress,
         listingLocation,
         askingPrice,

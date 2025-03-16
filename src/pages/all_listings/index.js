@@ -82,10 +82,10 @@ const AllListings = () => {
                             <p><strong>Price:</strong> ${listing.asking_price}</p>
                             <p><strong>Beds:</strong> {listing.bed_count} | <strong>Baths:</strong> {listing.bath_count}</p>
                             <p><strong>Amenities:</strong> {listing.amenities}</p>
-                            <p><strong>Listing Bio:</strong> {listing.listing_bio}</p>
                             <p><strong>Pets Allowed:</strong> {listing.pets_allowed ? "Yes" : "No"}</p>
                             <p><strong>Smoking Allowed:</strong> {listing.smoking_allowed ? "Yes" : "No"}</p>
                             <p><strong>Availability:</strong> {listing.availability ? listing.availability : "Not specified"}</p>
+                            <p><strong>Listing Bio:</strong> {listing.listing_bio}</p>
                             <p><strong>Private Listing:</strong> {listing.is_private ? "Yes" : "No"}</p>
 
                             <div className='button-divider'>

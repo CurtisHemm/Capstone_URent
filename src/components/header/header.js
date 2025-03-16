@@ -2,7 +2,6 @@
 import Link from 'next/link';   //Import Link for client-side routing
 import React, { useEffect, useState } from 'react';
 
-
 const Header = () => {
   const [user, setUser] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null); // Track which dropdown is open

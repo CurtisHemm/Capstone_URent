@@ -25,23 +25,29 @@ const listings_preferences = () => {
         }
 
         try {
+
+            let photoUrl = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/object/public/listing_images/pictures/placeholder.jpg'
+            
             const file = data.photo[0];
 
-            const formData = new FormData();
-            formData.append('file', file);
+            if (file) {
 
-            const uploadResponse = await fetch('/api/upload_img', {
-                method: 'POST',
-                body: formData,
-            });
+                const formData = new FormData();
+                formData.append('file', file);
 
-            const uploadResult = await uploadResponse.json();
+                const uploadResponse = await fetch('/api/upload_img', {
+                    method: 'POST',
+                    body: formData,
+                });
 
-            if (!uploadResponse.ok) {
-                throw new Error(uploadResult.error || 'Image upload failed');
+                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadResult.error || 'Image upload failed');
+                }
+
+                const photoUrl = uploadResult.publicUrl;
             }
-
-            const photoUrl = uploadResult.publicUrl;
 
             const response = await fetch('/api/add_listing', {
                 method: 'POST',
@@ -79,7 +85,6 @@ const listings_preferences = () => {
             <div className='formStyle'>
                 <label>Upload Image</label>
                 <input type='file' accept="image/jpeg" {...register('photo')} />
-                {/* <input type='text' {...register('photoUrl')} /> */}
             </div>
 
             <div className='formStyle'>

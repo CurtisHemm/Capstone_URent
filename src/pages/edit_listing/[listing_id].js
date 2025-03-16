@@ -3,11 +3,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 
+const PLACEHOLDER_IMG = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/object/public/listing_images/pictures/placeholder.jpg';
+
 const editListing = () => {
     const { user } = useFetchUserSession();
 
     const router = useRouter();
     const { listing_id } = router.query;
+    const [photoUrl, setPhotoUrl] = useState(PLACEHOLDER_IMG);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
@@ -15,9 +18,12 @@ const editListing = () => {
         register, 
         handleSubmit, 
         setValue,
-        reset, 
+        reset,
+        watch,
         formState: { errors } 
     } = useForm();
+
+    const removeImage = watch("removeImage", false);
 
     useEffect(() => {
         if (!listing_id || !user) return;
@@ -38,12 +44,12 @@ const editListing = () => {
                     setErrorMessage("You are not authorized to edit this listing.");
                     return;
                 }
-                
     
                 console.log("✅ Listing found! Updating state.");
+
+                setPhotoUrl(result.listings.photo_url || PLACEHOLDER_IMG);
                 
                 reset({
-                    photoUrl: result.listings.photo_url || '',
                     streetAddress: result.listings.street_address || '',
                     listingLocation: result.listings.location || '',
                     askingPrice: result.listings.asking_price || '',
@@ -69,11 +75,33 @@ const editListing = () => {
         setErrorMessage('');
         setSuccessMessage('');
 
+        let updatedPhotoUrl = photoUrl;
+
         try {
+            const file = data.photo?.[0];
+
+            if (removeImage) {
+                updatedPhotoUrl = PLACEHOLDER_IMG;
+            } else if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const uploadResponse = await fetch('/api/upload_img', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResponse.ok) { throw new Error(uploadResult.error || 'Image upload failed'); }
+
+                updatedPhotoUrl = uploadResult.publicUrl;
+            }
+
             const response = await fetch('/api/edit_listing', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ listingId: listing_id, data})
+                body: JSON.stringify({ listingId: listing_id, data, photoUrl: updatedPhotoUrl})
             });
 
             const result = await response.json();
@@ -100,10 +128,22 @@ const editListing = () => {
                 {successMessage && <div className="successMessage">{successMessage}</div>}
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                <div className='formStyle'>
-                    <label>Photo URL</label>
-                    <input type='text' {...register('photoUrl')} />
-                </div>
+
+                {photoUrl != PLACEHOLDER_IMG && <div className='formStyle'>
+                    <label>
+                        Remove Image?
+                        <input type="checkbox" {...register("removeImage")} />
+                    </label>
+                </div> }
+
+                <center>
+                    <img src={photoUrl} alt="Listing Image" className="listing-img" />
+                </center>
+                    
+                {!removeImage && <div className='formStyle'>
+                    <label>Upload Image</label>
+                    <input type='file' accept="image/jpeg" {...register('photo')} />
+                </div>}
 
                 <div className='formStyle'>
                     <label>Street Address</label>

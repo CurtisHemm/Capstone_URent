@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { listingId, data } = req.body;
+    const { listingId, data, photoUrl } = req.body;
 
 
     if (!listingId || !data) {
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         const { error: updateError } = await supabase
             .from('listings_table')
             .update({ 
-                photo_url: data.photoUrl || null,
+                photo_url: photoUrl || null,
                 street_address: data.streetAddress,
                 location: data.listingLocation,
                 asking_price: data.askingPrice,

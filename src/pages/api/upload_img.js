@@ -22,20 +22,26 @@ export default async function handler(req, res) {
         }
 
         const file = files.file && files.file[0];
+        const uploadType = fields.uploadType?.[0];
 
         if (!file) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
+        if (!uploadType || !['listing', 'profile'].includes(uploadType)) {
+            return res.status(400).json({ error: 'Invalid upload type' });
+        }
+
         try {
             const fileBuffer = fs.readFileSync(file.filepath);
-
             const fileExt = file.originalFilename.split('.').pop();
             const fileName = `${Date.now()}.${fileExt}`;
+
+            const bucket = uploadType === 'profile' ? 'profile_images' : 'listing_images';
             const filePath = `pictures/${fileName}`;
     
-            const { data, error } = await supabase.storage
-                .from('listing_images')
+            const { error } = await supabase.storage
+                .from(bucket)
                 .upload(filePath, fileBuffer, 
                 { contentType: file.mimetype || 'image/jpeg' });
     

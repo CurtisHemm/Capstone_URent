@@ -22,18 +22,18 @@ const listings_preferences = () => {
 
         if (data.askingPrice < 0) {
             setErrorMessage('Asking price needs to be a positive number');
+            return;
         }
 
         try {
-
             let photoUrl = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/object/public/listing_images/pictures/placeholder.jpg'
             
-            const file = data.photo[0];
+            const file = data.photo?.[0];
 
             if (file) {
-
                 const formData = new FormData();
                 formData.append('file', file);
+                formData.append('uploadType', 'listing');
 
                 const uploadResponse = await fetch('/api/upload_img', {
                     method: 'POST',

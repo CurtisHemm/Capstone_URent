@@ -17,7 +17,6 @@ const editListing = () => {
     const { 
         register, 
         handleSubmit, 
-        setValue,
         reset,
         watch,
         formState: { errors } 
@@ -85,6 +84,7 @@ const editListing = () => {
             } else if (file) {
                 const formData = new FormData();
                 formData.append('file', file);
+                formData.append('uploadType', 'listing');
 
                 const uploadResponse = await fetch('/api/upload_img', {
                     method: 'POST',

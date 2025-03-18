@@ -28,7 +28,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        if (!uploadType || !['listing', 'profile'].includes(uploadType)) {
+        if (!uploadType || !['listing', 'preference'].includes(uploadType)) {
             return res.status(400).json({ error: 'Invalid upload type' });
         }
 
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
             const fileExt = file.originalFilename.split('.').pop();
             const fileName = `${Date.now()}.${fileExt}`;
 
-            const bucket = uploadType === 'profile' ? 'profile_images' : 'listing_images';
+            const bucket = uploadType === 'preference' ? 'profile_images' : 'listing_images';
             const filePath = `pictures/${fileName}`;
     
             const { error } = await supabase.storage
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
             if (error) throw error;
     
             const { data: publicUrlData } = supabase.storage
-                .from('listing_images')
+                .from(bucket)
                 .getPublicUrl(filePath);
     
             res.status(200).json({ publicUrl: publicUrlData.publicUrl });

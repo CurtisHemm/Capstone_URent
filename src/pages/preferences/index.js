@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 
+const PLACEHOLDER_PROFILE_IMG = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/object/public/profile_images/pictures/placeholder.jpg';
+
 const preferences = () => {
     const [user, setUser] = useState(null);  
     const [preferenceId, setPreferenceId] = useState(null);
+    const [photoUrl, setPhotoUrl] = useState(PLACEHOLDER_PROFILE_IMG);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
@@ -51,6 +54,8 @@ const preferences = () => {
             console.log("✅ Preferences found! Updating state.");
             const pref = result.preference;
             setPreferenceId(pref.preference_id);
+            setPhotoUrl(pref.photo_url || PLACEHOLDER_PROFILE_IMG);
+
             reset({
                 preferredName: pref.preferred_name || '',
                 photoUrl: pref.photo_url || '',
@@ -63,6 +68,7 @@ const preferences = () => {
                 amenities: pref.amenities || '',
                 profileBio: pref.profile_bio || '',
                 preferencePrivate: pref.is_pref_private,
+                removeImage: false,
             });
 
         } catch (error) {
@@ -79,13 +85,41 @@ const preferences = () => {
         } 
 
         try {
+            let newPhotoUrl = photoUrl;
+
+            if (data.removeImage) {
+                newPhotoUrl = PLACEHOLDER_PROFILE_IMG;
+                setPhotoUrl(newPhotoUrl);
+                reset({ ...data, photo: null, removeImage: false });
+            } else {
+                const file = data.photo?.[0];
+
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('uploadType', 'preference');
+    
+                    const uploadResponse = await fetch('/api/upload_img', {
+                        method: 'POST',
+                        body: formData,
+                    });
+    
+                    const uploadResult = await uploadResponse.json();
+    
+                    if (!uploadResponse.ok) { throw new Error(uploadResult.error || 'Image upload failed'); }
+    
+                    newPhotoUrl = uploadResult.publicUrl;
+                    setPhotoUrl(newPhotoUrl);
+                }
+            }
+
             const apiFileLocation = preferenceId ? `/api/edit_preference` : `/api/add_preference`;
             const responeMethod = preferenceId ? 'PUT' : 'POST';
 
             const response = await fetch(apiFileLocation, {
                 method: responeMethod,
                 headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({ data, userId: user.user_id, preferenceId })
+                body: JSON.stringify({ data, userId: user.user_id, preferenceId, photoUrl: newPhotoUrl })
             });
 
             const result = await response.json();
@@ -95,7 +129,9 @@ const preferences = () => {
                 setErrorMessage('Error: Could not save preferences');
             } else {
                 setSuccessMessage('Preferences saved successfully!');
-                if (!preferenceId) setPreferenceId(result.preference_id);
+                if (!preferenceId) {
+                    setPreferenceId(result.newPreference?.[0]?.preference_id || result.preference_id);
+                }
             }
         } catch (error) {
             setErrorMessage('Error: Could Not Add preference');
@@ -113,6 +149,22 @@ const preferences = () => {
             {successMessage && <div className="successMessage">{successMessage}</div>}
 
             <form onSubmit={handleSubmit(onSubmit)}>
+                {photoUrl != PLACEHOLDER_PROFILE_IMG && <div className='formStyle'>
+                    <label>
+                        Remove Image?
+                        <input type="checkbox" {...register("removeImage")} />
+                    </label>
+                </div> }
+
+                <center>
+                    <img src={photoUrl} alt="Listing Image" className="listing-img" />
+                </center>
+
+                <div className='formStyle'>
+                    <label>Upload Image</label>
+                    <input type='file' accept="image/jpeg" {...register('photo')} onClick={(e) => e.target.value = null}/>
+                </div>
+
                 <div className='formStyle'>
                     <label>Preferred Name</label>
                     <input {...register('preferredName')} placeholder='Enter your preferred display name' />

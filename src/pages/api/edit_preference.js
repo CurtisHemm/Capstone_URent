@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { data, preferenceId} = req.body;
+    const { data, preferenceId, photoUrl} = req.body;
 
     if (!preferenceId || !data) {
         return res.status(400).json({ error: "Missing details"});
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
             .from('preferences_table')
             .update({ 
                 preferred_name: data.preferredName || null,
-                // photo_url: photoUrl || null, 
+                photo_url: photoUrl, 
                 location: data.location,
                 max_budget: data.maxBudget || null, 
                 pets_allowed: data.petsAllowed,

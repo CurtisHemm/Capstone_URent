@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         const { error: updateError } = await supabase
             .from('listings_table')
             .update({ 
-                photo_url: photoUrl || null,
+                photo_url: photoUrl,
                 street_address: data.streetAddress,
                 location: data.listingLocation,
                 asking_price: data.askingPrice,

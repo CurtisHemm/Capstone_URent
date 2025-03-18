@@ -13,7 +13,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { data, userId } = req.body;
+    const { data, userId, photoUrl } = req.body;
 
     if (!data || !userId) {
         return res.status(400).json({ error: "Invalid request: Missing data or userId"});
@@ -33,6 +33,8 @@ export default async function handler(req, res) {
     } = data;
 
     try {
+        console.log("Checking existing preference for user:", userId);
+
         const { data: existingPreference, error: fetchError } = await supabase
             .from('preferences_table')
             .select('*')
@@ -48,13 +50,13 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "User already has a preference. Please update instead." });
         }
 
-        const { newPreference, prefError } = await supabase
+        const { data: newPreference, error: prefError } = await supabase
             .from('preferences_table')
             .insert([
                 {
                     user_id: userId, 
                     preferred_name: preferredName || null,
-                    photo_url: null, 
+                    photo_url: photoUrl, 
                     location: location,
                     max_budget: maxBudget || null, 
                     pets_allowed: petsAllowed,

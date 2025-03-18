@@ -16,8 +16,11 @@ const preferences = () => {
         register, 
         handleSubmit, 
         reset, 
+        watch,
         formState: { errors } 
     } = useForm();
+
+    const removeImage = watch("removeImage", false);
     
     useEffect(() => {
         const fetchUserSession = async () => {
@@ -56,6 +59,8 @@ const preferences = () => {
             setPreferenceId(pref.preference_id);
             setPhotoUrl(pref.photo_url || PLACEHOLDER_PROFILE_IMG);
 
+            console.log("Reset thing photoUrl", photoUrl);
+
             reset({
                 preferredName: pref.preferred_name || '',
                 photoUrl: pref.photo_url || '',
@@ -86,31 +91,49 @@ const preferences = () => {
 
         try {
             let newPhotoUrl = photoUrl;
+            const oldPhotoUrl = (photoUrl && photoUrl !== PLACEHOLDER_PROFILE_IMG) 
+            ? photoUrl 
+            : PLACEHOLDER_PROFILE_IMG;
 
-            if (data.removeImage) {
+            if (data.removeImage && oldPhotoUrl !== PLACEHOLDER_PROFILE_IMG) {
+                console.log('Preparing to delete img');
+                
+                const uploadType = oldPhotoUrl.includes('profile_images') ? 'preference' : 'listing';
+
+                const deleteResponse = await fetch('api/delete_img', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json'},
+                    body: JSON.stringify({ photoUrl: oldPhotoUrl, uploadType})
+                });
+
+                if (!deleteResponse.ok) {
+                    throw new Error('Failed to delete old image from storage');
+                }
+
                 newPhotoUrl = PLACEHOLDER_PROFILE_IMG;
                 setPhotoUrl(newPhotoUrl);
                 reset({ ...data, photo: null, removeImage: false });
-            } else {
-                const file = data.photo?.[0];
+            } 
+            const file = data.photo?.[0];
 
-                if (file) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('uploadType', 'preference');
-    
-                    const uploadResponse = await fetch('/api/upload_img', {
-                        method: 'POST',
-                        body: formData,
-                    });
-    
-                    const uploadResult = await uploadResponse.json();
-    
-                    if (!uploadResponse.ok) { throw new Error(uploadResult.error || 'Image upload failed'); }
-    
-                    newPhotoUrl = uploadResult.publicUrl;
-                    setPhotoUrl(newPhotoUrl);
-                }
+            if (file) {
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('uploadType', 'preference');
+
+                const uploadResponse = await fetch('/api/upload_img', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResponse.ok) { throw new Error(uploadResult.error || 'Image upload failed'); }
+
+                newPhotoUrl = uploadResult.publicUrl;
+                setPhotoUrl(newPhotoUrl);
+            
             }
 
             const apiFileLocation = preferenceId ? `/api/edit_preference` : `/api/add_preference`;
@@ -139,6 +162,8 @@ const preferences = () => {
         }
     }
 
+   
+
     if (!user) return <p>Loading...</p>;
 
     return (
@@ -149,21 +174,23 @@ const preferences = () => {
             {successMessage && <div className="successMessage">{successMessage}</div>}
 
             <form onSubmit={handleSubmit(onSubmit)}>
-                {photoUrl != PLACEHOLDER_PROFILE_IMG && <div className='formStyle'>
+                <div className='formStyle'>
                     <label>
                         Remove Image?
                         <input type="checkbox" {...register("removeImage")} />
                     </label>
-                </div> }
+                </div>
 
                 <center>
                     <img src={photoUrl} alt="Listing Image" className="listing-img" />
                 </center>
 
-                <div className='formStyle'>
+                {removeImage && <div className='formStyle'>
                     <label>Upload Image</label>
-                    <input type='file' accept="image/jpeg" {...register('photo')} onClick={(e) => e.target.value = null}/>
-                </div>
+                    <input type='file' accept="image/jpeg" {...register('photo')} 
+                    onClick={(e) => e.target.value = null}
+                     />
+                </div>}
 
                 <div className='formStyle'>
                     <label>Preferred Name</label>

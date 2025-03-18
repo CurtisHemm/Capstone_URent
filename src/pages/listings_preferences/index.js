@@ -31,6 +31,7 @@ const listings_preferences = () => {
             const file = data.photo?.[0];
 
             if (file) {
+
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('uploadType', 'listing');
@@ -46,7 +47,7 @@ const listings_preferences = () => {
                     throw new Error(uploadResult.error || 'Image upload failed');
                 }
 
-                const photoUrl = uploadResult.publicUrl;
+                photoUrl = uploadResult.publicUrl;
             }
 
             const response = await fetch('/api/add_listing', {

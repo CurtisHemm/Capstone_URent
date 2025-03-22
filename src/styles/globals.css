@@ -10,7 +10,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #1ad4c4;
-    --foreground: #e4dddd;
+    --foreground: #efe7e7;
     --input-text-color: var(--input-text-color-dark); /* Dark theme input text color */
   }
 }

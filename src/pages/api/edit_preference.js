@@ -1,7 +1,6 @@
 import supabase from '@/lib/supabase';
 
 export default async function handler(req, res) {
-    console.log("Edit User Password API Reached!");
 
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
@@ -12,7 +11,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { data, preferenceId, photoUrl} = req.body;
+    const { data, preferenceId, photoUrl, latitude, longitude} = req.body;
 
     if (!preferenceId || !data) {
         return res.status(400).json({ error: "Missing details"});
@@ -43,6 +42,8 @@ export default async function handler(req, res) {
                 is_pref_private: data.preferencePrivate,
                 amenities: data.amenities || null,
                 profile_bio: data.profileBio || null, 
+                latitude: latitude,
+                longitude: longitude
             })
             .eq('preference_id', preferenceId);
 

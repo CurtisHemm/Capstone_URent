@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
+import { useFetchLatLong } from '@/hooks/useFetchLatLong.js';
 
 const PLACEHOLDER_PROFILE_IMG = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/object/public/profile_images/pictures/placeholder.jpg';
 
@@ -8,6 +9,7 @@ const preferences = () => {
     const [user, setUser] = useState(null);  
     const [preferenceId, setPreferenceId] = useState(null);
     const [photoUrl, setPhotoUrl] = useState(PLACEHOLDER_PROFILE_IMG);
+    const { fetchLatLong, locationError } = useFetchLatLong();
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
@@ -20,7 +22,7 @@ const preferences = () => {
         formState: { errors } 
     } = useForm();
 
-    const removeImage = watch("removeImage", false);
+    const removeImage = watch("removeImage", false); 
     
     useEffect(() => {
         const fetchUserSession = async () => {
@@ -37,20 +39,13 @@ const preferences = () => {
         fetchUserSession();
         }, [router]);
 
-    const fetchUserPreferences = async (userId) => {
+    const fetchUserPreferences = useCallback(async (userId) => {
         try {
             const response = await fetch(`/api/get_preference?userId=${userId}`);
             const result = await response.json();
 
-            console.log("API Response:", result); // Logs the full API response
-
-            if (!response.ok) {
-                console.error("Response not OK:", response.status, result);
-                return;
-            }
-
-            if (!result.preference) {
-                console.warn("No preference found in result");
+            if (!response.ok || !result.preference) {
+                console.error("Failed to fetch preferences", result);
                 return;
             }
 
@@ -58,8 +53,6 @@ const preferences = () => {
             const pref = result.preference;
             setPreferenceId(pref.preference_id);
             setPhotoUrl(pref.photo_url || PLACEHOLDER_PROFILE_IMG);
-
-            console.log("Reset thing photoUrl", photoUrl);
 
             reset({
                 preferredName: pref.preferred_name || '',
@@ -79,11 +72,25 @@ const preferences = () => {
         } catch (error) {
             console.error("Error fetching preferences:", error);
         }
-    };
+    },[reset]);
 
     const onSubmit = async (data) => {
         setErrorMessage('');
         setSuccessMessage('');
+
+        let locationError = null;
+
+        const latLong = await fetchLatLong(data.location);
+
+        if (locationError) {
+            setErrorMessage(locationError);
+            return;
+        }
+
+        if (!latLong?.latitude || !latLong?.longitude) {
+            setErrorMessage("Please provide a valid location to get coordinates.");
+            return;
+        }
 
         if (data.maxBudget < 0 ) {
             setErrorMessage('Budget must be a positive number');
@@ -137,12 +144,22 @@ const preferences = () => {
             }
 
             const apiFileLocation = preferenceId ? `/api/edit_preference` : `/api/add_preference`;
-            const responeMethod = preferenceId ? 'PUT' : 'POST';
+            const responseMethod = preferenceId ? 'PUT' : 'POST';
+
+            console.log(latLong.latitude);
+            console.log(latLong.longitude);
 
             const response = await fetch(apiFileLocation, {
-                method: responeMethod,
+                method: responseMethod,
                 headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({ data, userId: user.user_id, preferenceId, photoUrl: newPhotoUrl })
+                body: JSON.stringify({ 
+                    data, 
+                    userId: user.user_id, 
+                    preferenceId, 
+                    photoUrl: newPhotoUrl,
+                    latitude: latLong.latitude,
+                    longitude: latLong.longitude
+                  })
             });
 
             const result = await response.json();
@@ -162,8 +179,6 @@ const preferences = () => {
         }
     }
 
-   
-
     if (!user) return <p>Loading...</p>;
 
     return (
@@ -176,7 +191,7 @@ const preferences = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='formStyle'>
                     <label>
-                        Remove Image?
+                        Remove/Edit Image?
                         <input type="checkbox" {...register("removeImage")} />
                     </label>
                 </div>
@@ -198,8 +213,12 @@ const preferences = () => {
                 </div>
 
                 <div className='formStyle'>
-                    <label>Prefered Location City</label>
-                    <input {...register('location', { required: 'Location is required' })} placeholder='Enter city location' />
+                    <label>Preferred Location &#40;City, Province, Country&#41;</label>
+                    <input
+                        type="text"
+                        placeholder="Enter city or address"
+                        {...register('location', { required: 'Location is required' })}
+                    />
                     {errors.location && <p className='error'>{errors.location.message}</p>}
                 </div>
 

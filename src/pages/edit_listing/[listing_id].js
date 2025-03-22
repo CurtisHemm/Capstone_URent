@@ -75,13 +75,37 @@ const editListing = () => {
         setSuccessMessage('');
 
         let updatedPhotoUrl = photoUrl;
+        const oldPhotoUrl = (photoUrl && photoUrl !== PLACEHOLDER_IMG) 
+            ? photoUrl 
+            : PLACEHOLDER_IMG;
 
         try {
             const file = data.photo?.[0];
 
-            if (removeImage) {
+            if (removeImage && oldPhotoUrl !== PLACEHOLDER_IMG) {
+                console.log('Preparing to delete img');
+                const uploadType = oldPhotoUrl.includes('listing_images') ? 'listing' : 'preference';
+
+                console.log(oldPhotoUrl);
+                console.log(uploadType);
+
+                const deleteResponse = await fetch('/api/delete_img', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json'},
+                    body: JSON.stringify({ photoUrl: oldPhotoUrl, uploadType})
+                });
+
+                console.log(deleteResponse);
+
+                if (!deleteResponse.ok) {
+                    throw new Error('Failed to delete old image from storage');
+                }
+
                 updatedPhotoUrl = PLACEHOLDER_IMG;
-            } else if (file) {
+                setPhotoUrl(updatedPhotoUrl);
+                reset({ ...data, photo: null, removeImage: false });
+            }  
+            if (file) {
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('uploadType', 'listing');
@@ -129,18 +153,18 @@ const editListing = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)}>
 
-                {photoUrl != PLACEHOLDER_IMG && <div className='formStyle'>
+                <div className='formStyle'>
                     <label>
-                        Remove Image?
+                        Remove/Edit Image?
                         <input type="checkbox" {...register("removeImage")} />
                     </label>
-                </div> }
+                </div> 
 
                 <center>
                     <img src={photoUrl} alt="Listing Image" className="listing-img" />
                 </center>
                     
-                {!removeImage && <div className='formStyle'>
+                {removeImage && <div className='formStyle'>
                     <label>Upload Image</label>
                     <input type='file' accept="image/jpeg" {...register('photo')} />
                 </div>}

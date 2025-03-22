@@ -13,7 +13,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { data, userId, photoUrl } = req.body;
+    const { data, userId, photoUrl, latitude, longitude } = req.body;
 
     if (!data || !userId) {
         return res.status(400).json({ error: "Invalid request: Missing data or userId"});
@@ -66,6 +66,8 @@ export default async function handler(req, res) {
                     is_pref_private: preferencePrivate,
                     amenities: amenities || null,
                     profile_bio: profileBio || null,
+                    latitude: latitude,
+                    longitude: longitude
                 }
             ])
             .select();

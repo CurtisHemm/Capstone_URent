@@ -14,6 +14,8 @@ export default async function handler(req, res) {
 
     const { photoUrl, uploadType } = req.body;
 
+    console.log(uploadType);
+
     if (!photoUrl) {
         return res.status(400).json({ error: "Missing photo URL"});
     }

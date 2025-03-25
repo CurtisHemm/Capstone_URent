@@ -10,13 +10,15 @@ export const useFetchLatLong = () => {
     const locationPattern = /^[A-Za-zÀ-ÖØ-öø-ÿ'-. ]+,\s*[A-Za-zÀ-ÖØ-öø-ÿ'-. ]+,\s*[A-Za-zÀ-ÖØ-öø-ÿ'-. ]+$/
 
     if (!location) { 
-      setLocationError("No Location Given")
-      return null; 
+      const errorMessage = "No Location Given";
+      setLocationError(errorMessage);
+      return { error: errorMessage };
     }
 
     if (!locationPattern.test(location)) {
-      setLocationError("Invalid location format. Use: City, Province, Country.");
-      return null;
+      const errorMessage = "Invalid location format. Use: City, Province, Country.";
+      setLocationError(errorMessage);
+      return { error: errorMessage };
     }
 
     const locationParts = location.split(',').map(part => part.trim());
@@ -29,16 +31,18 @@ export const useFetchLatLong = () => {
       const geoData = await response.json();
 
       if (geoData.status.code !== 200 || geoData.results.length === 0) {
-        setLocationError("Invalid location. Please enter a valid City, Province, Country.");
-        return null;
+        const errorMessage = "Invalid location. Please enter a valid City, Province, Country."
+        setLocationError(errorMessage);
+        return { error: errorMessage };
       }
 
       const resultLocation = geoData.results[0].formatted;
       const resultParts = resultLocation.split(',').map(part => part.trim());
 
       if (resultParts.length !== 3 || !resultParts.includes(city) || !resultParts.includes(province) || !resultParts.includes(country)) {
-          setLocationError("The location entered doesn't match our records. Please check and try again.");
-          return null;
+        const errorMessage = "The location entered doesn't match our records. Please check and try again.";
+        setLocationError(errorMessage);
+        return { error: errorMessage };
       }
       
       const { lat, lng } = geoData.results[0].geometry;
@@ -48,12 +52,13 @@ export const useFetchLatLong = () => {
 
     } catch (error) {
       console.error("Error fetching coordinates:", error);
-      setLocationError("Error getting location & coordinates")
-      return null;
+      const errorMessage = "Error getting location & coordinates";
+      setLocationError(errorMessage);
+      return { error: errorMessage };
 
     }
   };
 
-  return { latLong, fetchLatLong, locationError };
+  return { fetchLatLong };
 };
 

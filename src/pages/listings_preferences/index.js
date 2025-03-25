@@ -2,10 +2,11 @@ import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
+import { useFetchLatLong } from '@/hooks/useFetchLatLong.js';
 
 const listings_preferences = () => {
     const { user } = useFetchUserSession();  
-
+    const { fetchLatLong } = useFetchLatLong();
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
@@ -19,6 +20,18 @@ const listings_preferences = () => {
     const onSubmit = async (data) => {
         setErrorMessage('');
         setSuccessMessage('');
+
+        const latLong = await fetchLatLong(data.listingLocation);
+
+        if (latLong.error) {
+            setErrorMessage(latLong.error);
+            return;
+        }
+
+        if (!latLong?.latitude || !latLong?.longitude) {
+            setErrorMessage("Please provide a valid location to get coordinates.");
+            return;
+        }
 
         if (data.askingPrice < 0) {
             setErrorMessage('Asking price needs to be a positive number');
@@ -53,7 +66,7 @@ const listings_preferences = () => {
             const response = await fetch('/api/add_listing', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({ data, userId: user.user_id, photoUrl })
+                body: JSON.stringify({ data, userId: user.user_id, photoUrl, latitude: latLong.latitude, longitude: latLong.longitude })
             });
 
             const result = await response.json();
@@ -95,9 +108,13 @@ const listings_preferences = () => {
             </div>
 
             <div className='formStyle'>
-                <label>City</label>
-                <input type='text' {...register('listingLocation', { required: true })} />
-                {errors.listingLocation && <span>This field is required</span>}
+                <label>Preferred Location &#40;City, Province, Country&#41;</label>
+                <input
+                    type="text"
+                    placeholder="Enter city or address"
+                    {...register('listingLocation', { required: 'Location is required' })}
+                />
+                {errors.location && <p className='error'>{errors.location.message}</p>}
             </div>
 
             <div className='formStyle'>

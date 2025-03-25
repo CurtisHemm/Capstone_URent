@@ -1,7 +1,7 @@
 import supabase from "@/lib/supabase";
 
 export default async function handler(req, res) { 
-    console.log("Get Listing API Route reached")
+    console.log("Get Accepted Matches API Route reached")
 
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
@@ -21,6 +21,8 @@ export default async function handler(req, res) {
     const userIdType = preferenceId ? "preference_id" : "listing_id";
     const idType = preferenceId || listingId;
     const tableType = preferenceId ? "listings_table" : "preferences_table";
+
+    console.log(userMatching, userIdType, idType, tableType);
 
     try {
         const { data: matches, error: getMatchesError } = await supabase

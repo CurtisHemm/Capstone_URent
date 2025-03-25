@@ -90,6 +90,10 @@ const AllListings = () => {
 
                             <div className='button-divider'>
                                 <button onClick={() => router.push(`/edit_listing/${listing.listing_id}`)} className='listing-button'>Edit</button>
+                                {!listing.is_private && (
+                                    <button className="listing-button">Start Matching</button>
+                                )}
+                                <button onClick={() => router.push(`/landlord_accepted_matches/${listing.listing_id}`)} className="listing-button">View Matches</button>
                                 <button onClick={() => handleDelete(listing.listing_id)} className="listing-button">Delete</button>
                             </div>
                         </div>

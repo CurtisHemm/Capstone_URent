@@ -1,29 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useRouter } from 'next/router';
 
 const dashboard = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(null);
     const router = useRouter();
+    const { user } = useFetchUserSession();  
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            const response = await fetch('/api/session', { credentials: 'include' });
-            if (!response.ok) {
-                router.push('/login');
-            } else {
-                setIsAuthenticated(true);
-            }
-        };
-        checkAuth();
-    }, [router]);
-
-    if (isAuthenticated === null) return <p>Loading...</p>;
+    if (!user) return <p>Loading...</p>;
 
     return (
-        <div>
-            <h1>Welcome to this random dashbaord, are you loging in as a tenant or landlord?</h1>
-            <p>You are successfully logged in.</p>
+        <>
+        <div className='dashboardContainer'>
+        <h1 className="dashboardHeading">Welcome {user.first_name}, what kind of matches are you looking for?</h1>
+            <div className="dashButtonContainer">
+                <button className="dashButton">Find Listings</button>
+
+                <button className="dashButton" onClick={() => router.push('/all_listings')}>Finding Tenants</button>
+            </div>
         </div>
+
+        </>
     );
 };
 

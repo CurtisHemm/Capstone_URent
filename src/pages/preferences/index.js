@@ -9,7 +9,7 @@ const preferences = () => {
     const [user, setUser] = useState(null);  
     const [preferenceId, setPreferenceId] = useState(null);
     const [photoUrl, setPhotoUrl] = useState(PLACEHOLDER_PROFILE_IMG);
-    const { fetchLatLong, locationError } = useFetchLatLong();
+    const { fetchLatLong } = useFetchLatLong();
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const router = useRouter();
@@ -78,12 +78,10 @@ const preferences = () => {
         setErrorMessage('');
         setSuccessMessage('');
 
-        let locationError = null;
-
         const latLong = await fetchLatLong(data.location);
 
-        if (locationError) {
-            setErrorMessage(locationError);
+        if (latLong.error) {
+            setErrorMessage(latLong.error);
             return;
         }
 

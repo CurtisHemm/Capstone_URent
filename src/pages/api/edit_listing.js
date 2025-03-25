@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { listingId, data, photoUrl } = req.body;
+    const { listingId, data, photoUrl, latitude, longitude } = req.body;
 
 
     if (!listingId || !data) {
@@ -44,12 +44,14 @@ export default async function handler(req, res) {
                 smoking_allowed: data.listingSmokingAllowed,
                 availability: data.availability || null,
                 listing_bio: data.listingBio || null,
-                is_private: data.listingPrivate   
+                is_private: data.listingPrivate,
+                latitude: latitude,
+                longitude: longitude   
             })
             .eq('listing_id', listingId);
 
         if (updateError) {
-            return res.status(500).json({ error: "Failed to update listing"});
+            return res.status(500).json({ error: updateError.message });
         }
 
         return res.status(200).json({ message: "Listing Updated"})

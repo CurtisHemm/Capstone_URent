@@ -1,4 +1,5 @@
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
+import { useFetchLatLong } from '@/hooks/useFetchLatLong.js';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
@@ -7,7 +8,7 @@ const PLACEHOLDER_IMG = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/obj
 
 const editListing = () => {
     const { user } = useFetchUserSession();
-
+    const { fetchLatLong } = useFetchLatLong();
     const router = useRouter();
     const { listing_id } = router.query;
     const [photoUrl, setPhotoUrl] = useState(PLACEHOLDER_IMG);
@@ -74,6 +75,18 @@ const editListing = () => {
         setErrorMessage('');
         setSuccessMessage('');
 
+        const latLong = await fetchLatLong(data.listingLocation);
+
+        if (latLong.error) {
+            setErrorMessage(latLong.error);
+            return;
+        }
+
+        if (!latLong?.latitude || !latLong?.longitude) {
+            setErrorMessage("Please provide a valid location to get coordinates.");
+            return;
+        }
+
         let updatedPhotoUrl = photoUrl;
         const oldPhotoUrl = (photoUrl && photoUrl !== PLACEHOLDER_IMG) 
             ? photoUrl 
@@ -125,7 +138,7 @@ const editListing = () => {
             const response = await fetch('/api/edit_listing', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ listingId: listing_id, data, photoUrl: updatedPhotoUrl})
+                body: JSON.stringify({ listingId: listing_id, data, photoUrl: updatedPhotoUrl, latitude: latLong.latitude, longitude: latLong.longitude})
             });
 
             const result = await response.json();
@@ -176,8 +189,12 @@ const editListing = () => {
                 </div>
 
                 <div className='formStyle'>
-                    <label>City</label>
-                    <input type='text' {...register('listingLocation', { required: true })} />
+                    <label>Preferred Location &#40;City, Province, Country&#41;</label>
+                    <input
+                        type="text"
+                        placeholder="Enter city or address"
+                        {...register('listingLocation', { required: 'Location is required' })}
+                    />
                 </div>
 
                 <div className='formStyle'>

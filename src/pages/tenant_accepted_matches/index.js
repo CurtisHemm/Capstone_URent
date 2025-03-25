@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useMatchUpdater } from '@/hooks/useMatchUpdate.js';
 import Link from 'next/link';   
 
 const TenantAcceptedMatches = () => {
@@ -9,6 +10,7 @@ const TenantAcceptedMatches = () => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const router = useRouter();
+    const { updateMatch } = useMatchUpdater();
 
     useEffect(() => {
         const fetchUserSession = async () => {
@@ -62,6 +64,18 @@ const TenantAcceptedMatches = () => {
         }
     };
 
+    const handleDecline= async (listing_id) => { 
+        if (!window.confirm("Are you sure you want to decline this listing?")) { return; }
+        updateMatch({
+            listing_id,
+            preferenceId,
+            matchType: "declined",
+            matchNotes: "Tenant declined matched listing",
+            onSuccess: () => setListings(listings.filter(listing => listing.listing_id !== listing_id)),
+            setErrorMessage
+        });
+        
+    };
     
     if (loading) return <p>Loading...</p>;
 
@@ -73,7 +87,7 @@ const TenantAcceptedMatches = () => {
 
         {listings.length === 0 ? (
             <div className="signUpLink">
-                <Link href="/listings_preferences">You have no listings. Add one here.</Link>
+                <Link href="/tenant_matches">You have no matches. Find some here.</Link>
             </div>
         ) : (
             <ul className="listings">
@@ -92,7 +106,8 @@ const TenantAcceptedMatches = () => {
                             <p><strong>Private Listing:</strong> {listing.is_private ? "Yes" : "No"}</p>
 
                             <div className='button-divider'>
-                                
+                                <button className='listing-button'>Message The Landlord</button>
+                                <button onClick={() => handleDecline(listing.listing_id)} className='listing-button'>Remove From Matches</button>
                             </div>
                         </div>
                     </li>

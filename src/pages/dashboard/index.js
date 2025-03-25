@@ -14,7 +14,7 @@ const dashboard = () => {
             <div className="dashButtonContainer">
                 <button className="dashButton">Find Listings</button>
 
-                <button className="dashButton" onClick={() => router.push('/all_listings')}>Finding Tenants</button>
+                <button className="dashButton" onClick={() => router.push('/all_listings')}>Find Tenants</button>
             </div>
         </div>
 

@@ -355,3 +355,52 @@ button:hover {
   align-items: center;
   justify-content: center;
 }
+
+.matchBoxContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 65vh;
+}
+
+.matchBox {
+  width: 45%;
+  height: 50%;
+  background-color: #ffffff;
+  color: rgba(255, 255, 255, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: grab;
+}
+
+.matchPageText {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  color: #ffffff;
+}
+
+.matchBoxText {
+  color: black; 
+}
+
+.matchContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  color: #222;
+}
+
+.listingImage {
+  width: 90%;
+  max-width: 275px;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}

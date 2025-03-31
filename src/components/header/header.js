@@ -1,6 +1,7 @@
 //imports
 import Link from 'next/link';   //Import Link for client-side routing
 import React, { useEffect, useState } from 'react';
+import { motion } from "framer-motion";
 
 const Header = () => {
   const [user, setUser] = useState(null);
@@ -59,9 +60,9 @@ const Header = () => {
                 </ul>
               </li>
 
-              <li className="dropdown" onClick={() => toggleDropdown("matches")}>
+              <li className="dropdown" onClick={() => toggleDropdown("acceptMatches")}>
                 <span>Accepted Matches ▼</span>
-                <ul className={`dropdown-menu ${openDropdown === "matches" ? "show" : ""}`}>
+                <ul className={`dropdown-menu ${openDropdown === "acceptMatches" ? "show" : ""}`}>
                   <li><Link href="/tenant_accepted_matches">Listing's You Matched</Link></li>
                   <li><Link href="/landlord_accepted_matches">Tenant's You Matched</Link></li>
                 </ul>

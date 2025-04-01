@@ -56,7 +56,7 @@ const Header = () => {
                 <span>Start Matching ▼</span>
                 <ul className={`dropdown-menu ${openDropdown === "matches" ? "show" : ""}`}>
                   <li><Link href="/tenant_matches">Find Listings</Link></li>
-                  <li><Link href="/landlord_matches">Find Tenants</Link></li>
+                  <li><Link href="/all_listings">Find Tenants</Link></li>
                 </ul>
               </li>
 
@@ -64,7 +64,7 @@ const Header = () => {
                 <span>Accepted Matches ▼</span>
                 <ul className={`dropdown-menu ${openDropdown === "acceptMatches" ? "show" : ""}`}>
                   <li><Link href="/tenant_accepted_matches">Listing's You Matched</Link></li>
-                  <li><Link href="/landlord_accepted_matches">Tenant's You Matched</Link></li>
+                  <li><Link href="/all_listings">Tenant's You Matched</Link></li>
                 </ul>
               </li>
 

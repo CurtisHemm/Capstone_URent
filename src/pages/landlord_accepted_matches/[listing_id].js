@@ -71,7 +71,7 @@ const LandlordAcceptedMatches = () => {
 
         {tenants.length === 0 ? (
             <div className="signUpLink">
-                <Link href="/listings_preferences">You have no Matches. Find some here.</Link>
+                <Link href="/all_listings">You have no Matches. Go back to Listings</Link>
             </div>
         ) : (
             <ul className="listings">

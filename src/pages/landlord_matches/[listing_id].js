@@ -1,11 +1,12 @@
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
-import { useFetchPreferenceId } from "@/hooks/useFetchPreferenceId.js";
 import { useState, useEffect } from 'react';  
 import { motion } from "framer-motion";
+import { useRouter } from 'next/router';
 
-const TenantMatches = () => {
+const LandlordMatches = () => {
     const { user } = useFetchUserSession();
-    const { preferenceId } = useFetchPreferenceId(user?.user_id); 
+    const router = useRouter();
+    const { listing_id } = router.query;
     const [matchIndex, setMatchIndex] = useState(0);
     const [exitDirection, setExitDirection] = useState({ x: 0, y: 0 });
     const [isMatching, setIsMatching] = useState(false);
@@ -16,7 +17,7 @@ const TenantMatches = () => {
         setIsMatching(true);
 
         try {
-            const fetchedMatches = await fetch(`/api/get_matches?preferenceId=${preferenceId}`)
+            const fetchedMatches = await fetch(`/api/get_matches?listingId=${listing_id}`)
 
             if (!fetchedMatches.ok) {
                 console.log("Error fetching matches");
@@ -56,21 +57,23 @@ const TenantMatches = () => {
                 handleSwipeDown();
             }
         }
-        
     };
 
     const handleAccept = async () => {
         const responseMethod = matches[matchIndex].isPending ? "PUT" : "POST";
-        const apiFileLocation = matches[matchIndex]?.isPending ? `/api/accept_decline_match` : `api/request_match`;
-        const enumType = matches[matchIndex].isPending ? "accepted" : "pendingTenant";
+        const apiFileLocation = matches[matchIndex].isPending ? `/api/accept_decline_match` : `/api/request_match`;
+        const enumType = matches[matchIndex].isPending ? "accepted" : "pendingLandlord";
+
+        console.log(responseMethod, apiFileLocation, enumType)
+        console.log(matches[matchIndex].preference_id, listing_id, enumType);
 
         try {
             const acceptResponse = await fetch(apiFileLocation, {
                 method: responseMethod,
                 headers: { 'Content-Type': 'application/json'},
                 body: JSON.stringify({ 
-                    preferenceId, 
-                    listingId: matches[matchIndex].listing_id,
+                    preferenceId: matches[matchIndex].preference_id, 
+                    listingId: listing_id,
                     enumType: enumType
                     })
             });
@@ -95,7 +98,7 @@ const TenantMatches = () => {
 
     const handleDecline = async () => {
         const responseMethod = matches[matchIndex].isPending ? "PUT" : "POST";
-        const apiFileLocation = matches[matchIndex]?.isPending ? `/api/accept_decline_match` : `api/request_match`;
+        const apiFileLocation = matches[matchIndex]?.isPending ? `/api/accept_decline_match` : `/api/request_match`;
         const enumType = "declined";
 
         try {
@@ -103,8 +106,8 @@ const TenantMatches = () => {
                 method: responseMethod,
                 headers: { 'Content-Type': 'application/json'},
                 body: JSON.stringify({ 
-                    preferenceId, 
-                    listingId: matches[matchIndex].listing_id,
+                    preferenceId: matches[matchIndex].preference_id, 
+                    listingId: listing_id,
                     enumType: enumType
                     })
             });
@@ -151,7 +154,7 @@ const TenantMatches = () => {
 
     return (
         <>
-        {preferenceId ? (
+        {listing_id ? (
             !isMatching ? (
                 <button onClick={startMatching} className="startMatchingButton">
                     Start Matching
@@ -162,7 +165,7 @@ const TenantMatches = () => {
                 <div className="matchBoxContainer">
                     {matches[matchIndex] ? (
                         <motion.div 
-                        key={`${matchIndex}-${matches[matchIndex].listing_id}`}
+                        key={`${matchIndex}-${matches[matchIndex].preference_id}`}
                         drag 
                         onDragEnd={handleDrag} 
                         dragConstraints={{ left: -150, right: 150, top: -150, bottom: 150 }} 
@@ -179,16 +182,16 @@ const TenantMatches = () => {
                                     alt="Listing Image" 
                                     className="listingImage"
                                 />
-                                <h2>{matches[matchIndex].street_address}, {matches[matchIndex].location}</h2>
+                                <h2>{matches[matchIndex].preferred_name}</h2>
                                 <p><strong>Pending Request:</strong> {matches[matchIndex].isPending ? "Yes" : "No"}</p>
                                 <p><strong>Compatibility Score:</strong> {matches[matchIndex].compatibilityScore}/6</p>
-                                <p><strong>Price:</strong> ${matches[matchIndex].asking_price}</p>
+                                <p><strong>Prefered Location: </strong>{matches[matchIndex].location}</p>
+                                <p><strong>Max Budget:</strong> ${matches[matchIndex].max_budget}</p>
                                 <p><strong>Beds:</strong> {matches[matchIndex].bed_count} | <strong>Baths:</strong> {matches[matchIndex].bath_count}</p>
                                 <p><strong>Amenities:</strong> {matches[matchIndex].amenities || "N/A"}</p>
                                 <p><strong>Pets Allowed:</strong> {matches[matchIndex].pets_allowed ? "Yes" : "No"}</p>
                                 <p><strong>Smoking Allowed:</strong> {matches[matchIndex].smoking_allowed ? "Yes" : "No"}</p>
-                                <p><strong>Availability:</strong> {matches[matchIndex].availability}</p>
-                                <p><strong>Description:</strong> {matches[matchIndex].listing_bio}</p>
+                                <p><strong>Bio:</strong> {matches[matchIndex].profile_bio}</p>
                             </div>
                     </motion.div>
                     ) : (
@@ -200,12 +203,11 @@ const TenantMatches = () => {
                         <p>No matches found.</p>
                     ) 
         ) : ( 
-            <p>No preferences found. Set your preferences to see matches.</p> 
+            <p>No listings found. Set your listing to see matches.</p> 
         )}
         </>
     );
 
-
 };
 
-export default TenantMatches;
+export default LandlordMatches;

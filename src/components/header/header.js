@@ -34,6 +34,11 @@ const Header = () => {
 
     setOpenDropdown(openDropdown === menu ? null : menu);
   };
+
+  const handleLinkClick = (e) => {
+    e.stopPropagation();
+    setOpenDropdown(null); 
+  };
   
     return (
       <header>
@@ -46,33 +51,33 @@ const Header = () => {
 
               <li className="dropdown" onClick={() => toggleDropdown("preferences")}>
                 <span>Preferences ▼</span>
-                <ul className={`dropdown-menu ${openDropdown === "preferences" ? "show" : ""}`}>
-                  <li><Link href="/preferences">Tenant Preferences</Link></li>
-                  <li><Link href="/listings_preferences">Landlord Preferences</Link></li>
+                <ul className={`dropdown-menu ${openDropdown === "preferences" ? "show" : ""}`} onClick={(e) => e.stopPropagation()}>
+                  <li><Link href="/preferences" onClick={handleLinkClick}>Tenant Preferences</Link></li>
+                  <li><Link href="/listings_preferences" onClick={handleLinkClick}>Landlord Preferences</Link></li>
                 </ul>
               </li>
 
               <li className="dropdown" onClick={() => toggleDropdown("matches")}>
                 <span>Start Matching ▼</span>
-                <ul className={`dropdown-menu ${openDropdown === "matches" ? "show" : ""}`}>
-                  <li><Link href="/tenant_matches">Find Listings</Link></li>
-                  <li><Link href="/all_listings">Find Tenants</Link></li>
+                <ul className={`dropdown-menu ${openDropdown === "matches" ? "show" : ""}`} onClick={(e) => e.stopPropagation()}>
+                  <li><Link href="/tenant_matches" onClick={handleLinkClick}>Find Listings</Link></li>
+                  <li><Link href="/all_listings" onClick={handleLinkClick}>Find Tenants</Link></li>
                 </ul>
               </li>
 
               <li className="dropdown" onClick={() => toggleDropdown("acceptMatches")}>
                 <span>Accepted Matches ▼</span>
-                <ul className={`dropdown-menu ${openDropdown === "acceptMatches" ? "show" : ""}`}>
-                  <li><Link href="/tenant_accepted_matches">Listing's You Matched</Link></li>
-                  <li><Link href="/all_listings">Tenant's You Matched</Link></li>
+                <ul className={`dropdown-menu ${openDropdown === "acceptMatches" ? "show" : ""}`} onClick={(e) => e.stopPropagation()}>
+                  <li><Link href="/tenant_accepted_matches" onClick={handleLinkClick}>Listing's You Matched</Link></li>
+                  <li><Link href="/all_listings" onClick={handleLinkClick}>Tenant's You Matched</Link></li>
                 </ul>
               </li>
 
               <li className="dropdown profile-menu" onClick={() => toggleDropdown("profile")}>
               <span>{user.first_name} Profile ▼</span>
-                <ul className={`dropdown-menu ${openDropdown === "profile" ? "show" : ""}`}>
-                  <li><Link href="/edit_password">Edit Password</Link></li>
-                  <li><Link href="/all_listings">Your Listings</Link></li>
+                <ul className={`dropdown-menu ${openDropdown === "profile" ? "show" : ""}`} onClick={(e) => e.stopPropagation()}>
+                  <li><Link href="/edit_password" onClick={handleLinkClick}>Edit Password</Link></li>
+                  <li><Link href="/all_listings" onClick={handleLinkClick}>Your Listings</Link></li>
                   <li><button onClick={handleLogout} className="logout-button">Logout</button></li>
                 </ul>
               </li>

@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 const Header = () => {
   const [user, setUser] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null); 
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const router = useRouter();
   
   useEffect(() => {
@@ -38,21 +39,30 @@ const Header = () => {
 
   const handleLinkClick = (e) => {
     setOpenDropdown(null);
+    setIsMobileNavOpen(false);
     
     if (e.metaKey || e.ctrlKey) return; 
 
     e.preventDefault();
     router.push(e.currentTarget.getAttribute('href'));
   };
+
+  const toggleMobileNav = () => {
+    setIsMobileNavOpen(!isMobileNavOpen);
+    setOpenDropdown(null); 
+  };
   
     return (
       <header>
         <nav className="navbar">
-          <ul className="nav-links">
-            <li><Link href="/">Home</Link></li>      
+        <button className="mobile-menu-button" onClick={toggleMobileNav} aria-label="Toggle navigation">
+          {isMobileNavOpen ? '✕' : '☰'}
+        </button>
+          <ul className={`nav-links ${isMobileNavOpen ? 'mobile-show' : ''}`}>
+            <li><Link href="/" onClick={() => setIsMobileNavOpen(false)}>Home</Link></li>      
             {user ? (
               <>
-              <li><Link href="/dashboard">Dashboard</Link></li>
+              <li><Link href="/dashboard" onClick={() => setIsMobileNavOpen(false)}>Dashboard</Link></li>
 
               <li className="dropdown" onClick={() => toggleDropdown("preferences")}>
                 <span>Preferences ▼</span>
@@ -89,7 +99,7 @@ const Header = () => {
 
               </>
             ) : (
-              <li><Link href="/login">Login</Link></li>
+              <li><Link href="/login" onClick={() => setIsMobileNavOpen(false)}>Login</Link></li>
             )}
           
           </ul>

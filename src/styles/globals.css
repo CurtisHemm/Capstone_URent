@@ -424,3 +424,26 @@ button:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
+
+@media (max-width: 768px) {
+  .nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .nav-links li {
+    width: 100%;
+    padding: 0.5rem 1rem;
+  }
+  
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    width: 100%;
+  }
+  
+  .dropdown > span {
+    display: block;
+    width: 100%;
+  }
+}

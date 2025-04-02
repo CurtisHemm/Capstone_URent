@@ -44,7 +44,7 @@ a {
   position: relative;
   z-index: 2000;
   width: 100%;
-  box-sizing: border-box; /* Prevent any box-sizing issues */
+  box-sizing: border-box; 
 }
 
 .nav-links {
@@ -54,7 +54,8 @@ a {
   display: flex;
   gap: 5%;
   font-size: 25px;
-  flex-grow: 1; /* Allows the nav items to take up available space */
+  flex-grow: 1; 
+  flex-wrap: wrap;
 
 }
 

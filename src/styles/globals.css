@@ -30,6 +30,10 @@ body {
   margin: 0;
 }
 
+html {
+  touch-action: manipulation; /* Improves touch responsiveness */
+}
+
 a {
   color: inherit;
   text-decoration: none;

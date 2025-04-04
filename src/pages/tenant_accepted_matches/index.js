@@ -106,7 +106,7 @@ const TenantAcceptedMatches = () => {
                             <p><strong>Private Listing:</strong> {listing.is_private ? "Yes" : "No"}</p>
 
                             <div className='button-divider'>
-                                <button className='listing-button'>Message The Landlord</button>
+                                <button onClick={() => router.push(`/chat_messages/${preferenceId}?receiver=${listing.listing_id}&is_landlord=false`)} className='listing-button'>Message The Landlord</button>
                                 <button onClick={() => handleDecline(listing.listing_id)} className='listing-button'>Remove From Matches</button>
                             </div>
                         </div>

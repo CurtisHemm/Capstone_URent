@@ -71,7 +71,7 @@ const LandlordAcceptedMatches = () => {
 
         {tenants.length === 0 ? (
             <div className="signUpLink">
-                <Link href="/all_listings">You have no Matches. Go back to Listings</Link>
+                <Link href="/all_listings">You have no Matches. Go back to listings</Link>
             </div>
         ) : (
             <ul className="listings">
@@ -89,7 +89,7 @@ const LandlordAcceptedMatches = () => {
                             <p><strong>Tenant Bio:</strong> {tenant.profile_bio}</p>
 
                             <div className='button-divider'>
-                                <button className='listing-button'>Message The Tenant</button>
+                                <button onClick={() => router.push(`/chat_messages/${listing_id}?receiver=${tenant.preference_id}&is_landlord=true`)} className='listing-button'>Message The Tenant</button>
                                 <button onClick={() => handleDecline(tenant.preference_id)} className='listing-button'>Remove From Matches</button>
                             </div>
                         </div>

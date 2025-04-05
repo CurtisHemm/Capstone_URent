@@ -550,23 +550,23 @@ button:hover {
 .sent-message {
   background: linear-gradient(90deg, #3b82f6, #2563eb);
   color: white;
-  margin-left: auto; /* This pushes the bubble to the right */
-  align-items: flex-end; /* Align text to the right */
-  border-bottom-right-radius: 0.25rem; /* Optional: style the bubble tail */
+  margin-left: auto;
+  align-items: flex-end; 
+  border-bottom-right-radius: 0.25rem; 
 }
 
 .received-message {
   background-color: #e2e8f0;
   color: #2d3748;
-  margin-right: auto; /* This pushes the bubble to the left */
-  align-items: flex-start; /* Align text to the left */
-  border-bottom-left-radius: 0.25rem; /* Optional: style the bubble tail */
+  margin-right: auto; 
+  align-items: flex-start; 
+  border-bottom-left-radius: 0.25rem; 
 }
 
 .message-text {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  text-align: left; /* Keep text alignment consistent */
+  text-align: left; 
 }
 
 .message-time {
@@ -589,13 +589,14 @@ button:hover {
 }
 
 .message-input {
-  flex-grow: 1;
-  padding: 0.75rem;
+  flex-grow: 2;
+  padding: 0.75rem 1.25rem;
   border: 1px solid #cbd5e0;
   border-radius: 9999px;
   font-size: 1rem;
   outline: none;
   transition: border-color 0.2s ease-in-out;
+  min-width: 0;
 }
 
 .message-input:focus {
@@ -604,14 +605,16 @@ button:hover {
 }
 
 .send-button {
+  flex-shrink: 0;
   background-color: #3b82f6;
   color: white;
-  padding: 0.75rem 1.25rem;
+  padding: 0.4rem 0.75rem;
   border-radius: 9999px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  width: 40%;
 }
 
 .send-button:hover {

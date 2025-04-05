@@ -1,8 +1,10 @@
+// Import
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useMatchUpdater } from '@/hooks/useMatchUpdate.js';
 import Link from 'next/link';   
 
+// Page for showing matches a listing has
 const LandlordAcceptedMatches = () => {
     const [tenants, setTenants] = useState([]);
     const [user, setUser] = useState(null);
@@ -12,6 +14,7 @@ const LandlordAcceptedMatches = () => {
     const { listing_id } = router.query;
     const { updateMatch } = useMatchUpdater();
 
+    // Fetch user session, if there isn't one, redirect to login page
     useEffect(() => {
         const fetchUserSession = async () => {
             const response = await fetch('/api/session', { credentials: 'include' });
@@ -28,6 +31,7 @@ const LandlordAcceptedMatches = () => {
         fetchUserSession();
     }, [router, listing_id]);
 
+    // Fetch tenants with accepted matches
     const fetchUserListingsMatches = async (listingId) => {
         
         try {
@@ -47,6 +51,7 @@ const LandlordAcceptedMatches = () => {
   
     };
 
+    // When a landlord declines a tenant, update them in the matches table
     const handleDecline= async (preferenceId) => { 
         if (!window.confirm("Are you sure you want to decline this tenant?")) { return; }
         updateMatch({

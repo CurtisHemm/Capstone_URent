@@ -1,14 +1,16 @@
+// Imports
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';   
 
 const AllListings = () => {
-    const [listings, setListings] = useState([]);
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState('');
-    const router = useRouter();
+    const [listings, setListings] = useState([]);    // Store array of listings
+    const [user, setUser] = useState(null);             // Store user data
+    const [loading, setLoading] = useState(true);       // Store loading state
+    const [errorMessage, setErrorMessage] = useState(''); // Store error message
+    const router = useRouter();                             // Next.js router instance
 
+    // useEffect for checking if user session is active, and fetching the listings the user owns
     useEffect(() => {
         const fetchUserSession = async () => {
             const response = await fetch('/api/session', { credentials: 'include' });
@@ -23,6 +25,7 @@ const AllListings = () => {
         fetchUserSession();
     }, [router]);
 
+    // fetchListings function that calls get listing api with userId, and gets array of listings
     const fetchListings = async (userId) => {
         try {
             const response = await fetch(`/api/get_listing?userId=${userId}`);
@@ -38,6 +41,7 @@ const AllListings = () => {
         setLoading(false);
     };
 
+    // handleDelete function for when user deletes a listing for the array. Calls delete listing api to delete listing from listings table
     const handleDelete = async (listingId) => { 
         if (!window.confirm("Are you sure you want to delete this listing?")) { return; }
 
@@ -60,14 +64,19 @@ const AllListings = () => {
 
     }
 
+    // Check if still loading
     if (loading) return <p>Loading...</p>;
 
     return (
         <div className="container">
         <h2>{user.first_name} Listings</h2>
 
+        {/* Error Message */}
         {errorMessage && <div className="errorMessage">{errorMessage}</div>}
 
+        {/* If user owns no listings, show an emtpy container with link to make listings
+            If they own one or more, they can see the details, delete, view matches, or start match if its not private
+        */}
         {listings.length === 0 ? (
             <div className="signUpLink">
                 <Link href="/listings_preferences">You have no listings. Add one here.</Link>

@@ -1,19 +1,23 @@
+// Imports
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';   
 
+// Login page of when users log in
 const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // Hook form functions
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
+  // When user press log in button, fetch api response to see if the data matches
   const onSubmit = async (data) => {
 
     // Reset error message
@@ -23,6 +27,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+        // Fetch log in API
         const response = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
@@ -37,6 +42,7 @@ const Login = () => {
 
         console.log('User logged in:', result);
 
+        // If user logged in correctly, push them to dashboard
         router.push('/dashboard').then(() =>{
             window.location.reload();
         });
@@ -52,7 +58,6 @@ const Login = () => {
     <div className="loginContainer">
         <h2>URent Login</h2>
 
-        {/* Error Message Display */}
         {errorMessage && <div className="errorMessage">{errorMessage}</div>}
 
         <form onSubmit={handleSubmit(onSubmit)}>

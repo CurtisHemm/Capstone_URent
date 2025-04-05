@@ -1,4 +1,6 @@
+// Hook for when a requested match is updated. Either declined or accepted
 export const useMatchUpdater = () => {
+    // updateMatch function 
     const updateMatch = async ({ listing_id, preferenceId, matchType, matchNotes, onSuccess, setErrorMessage }) => {
 
         try {
@@ -19,6 +21,7 @@ export const useMatchUpdater = () => {
         }
     };
 
+    // Return updateMatch function
     return { updateMatch };
 }
 

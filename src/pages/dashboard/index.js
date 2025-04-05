@@ -1,8 +1,10 @@
+// Imports
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useFetchPreferenceId } from "@/hooks/useFetchPreferenceId.js";
 import { useRouter } from 'next/router';
 import { motion } from "framer-motion";
 
+// Dashboard page that shows 2 buttons, one for matching or tenants, or one for matching listings
 const dashboard = () => {
     const router = useRouter();
     const { user } = useFetchUserSession();  

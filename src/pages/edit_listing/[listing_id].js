@@ -1,11 +1,14 @@
+// Imports
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useFetchLatLong } from '@/hooks/useFetchLatLong.js';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 
+// Placeholder for img
 const PLACEHOLDER_IMG = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/object/public/listing_images/pictures/placeholder.jpg';
 
+// Page for editing listing
 const editListing = () => {
     const { user } = useFetchUserSession();
     const { fetchLatLong } = useFetchLatLong();
@@ -15,6 +18,7 @@ const editListing = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
+    // Hook form functions
     const { 
         register, 
         handleSubmit, 
@@ -23,8 +27,10 @@ const editListing = () => {
         formState: { errors } 
     } = useForm();
 
+    // Watch the remove image checkbox
     const removeImage = watch("removeImage", false);
 
+    // Fetch the listing and get the data of that listing
     useEffect(() => {
         if (!listing_id || !user) return;
     
@@ -71,6 +77,7 @@ const editListing = () => {
         fetchUserListings();
     }, [listing_id, user]);
 
+    // When user edits, get location, update photo, and call API's
     const onSubmit = async (data) => {
         setErrorMessage('');
         setSuccessMessage('');

@@ -1,9 +1,11 @@
+// Imports
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useFetchLatLong } from '@/hooks/useFetchLatLong.js';
 
+// Page for adding listings
 const listings_preferences = () => {
     const { user } = useFetchUserSession();  
     const { fetchLatLong } = useFetchLatLong();

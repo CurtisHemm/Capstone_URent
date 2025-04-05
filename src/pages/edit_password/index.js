@@ -1,45 +1,49 @@
+// Import
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+// Page for editing password
 const EditPassword = () => {
-  const { user } = useFetchUserSession();  
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+    const { user } = useFetchUserSession();  
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
-  const { 
-    register, 
-    handleSubmit, 
-    watch,
-    reset,
-    formState: { errors } 
-} = useForm();
+    // Hook form functions
+    const { 
+        register, 
+        handleSubmit, 
+        watch,
+        reset,
+        formState: { errors } 
+    } = useForm();
 
-  const onSubmit = async (data) => {
-    setErrorMessage('');
-    setSuccessMessage('');
+    // When user submits, compare original password to the password in the user table, hash new one and insert
+    const onSubmit = async (data) => {
+        setErrorMessage('');
+        setSuccessMessage('');
 
-    const { originalPassword, newPassword, confirmPassword } = data;
+        const { originalPassword, newPassword, confirmPassword } = data;
 
-    if (newPassword != confirmPassword) {
-        setErrorMessage("Password Confirmation doesn't match New Password");
-        return;
-    }
+        if (newPassword != confirmPassword) {
+            setErrorMessage("Password Confirmation doesn't match New Password");
+            return;
+        }
 
-    const response = await fetch('/api/edit_password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.user_id, originalPassword, newPassword }),
-    });
+        const response = await fetch('/api/edit_password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.user_id, originalPassword, newPassword }),
+        });
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if (response.ok) {
-        setSuccessMessage('Password updated successfully');
-        reset(); 
-    } else {
-        setErrorMessage(result.error || 'Something went wrong');
-    }
+        if (response.ok) {
+            setSuccessMessage('Password updated successfully');
+            reset(); 
+        } else {
+            setErrorMessage(result.error || 'Something went wrong');
+        }
     };
 
     if (!user) return <p>Loading...</p>;

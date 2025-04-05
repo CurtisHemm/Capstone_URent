@@ -1,8 +1,11 @@
+// Import
 import { useState, useEffect } from "react";
 
+// Hook for fetching preferenceId of a userId
 export const useFetchPreferenceId = (userId) => {
-    const [preferenceId, setPreferenceId] = useState(null);
+    const [preferenceId, setPreferenceId] = useState(null);    // Stores preference Id
 
+    // Fetchs the get_preference api using the userId to get the preferenceId
     useEffect(() => {
         if (!userId) return;
         const fetchPreference = async () => {
@@ -21,5 +24,6 @@ export const useFetchPreferenceId = (userId) => {
         fetchPreference();
     }, [userId])
 
+    // Return the preference Id
     return { preferenceId };
 };

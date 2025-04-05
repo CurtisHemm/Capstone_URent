@@ -1,5 +1,7 @@
+// Import
 import { parse } from 'cookie';
 
+// API for creating user session
 export default function handler(req, res) {
     console.log("Session API Hit");
     const cookies = parse(req.headers.cookie || '');

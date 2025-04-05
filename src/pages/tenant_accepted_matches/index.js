@@ -1,8 +1,10 @@
+// Imports
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useMatchUpdater } from '@/hooks/useMatchUpdate.js';
 import Link from 'next/link';   
 
+// Page for getting a tenant's accepted matches
 const TenantAcceptedMatches = () => {
     const [listings, setListings] = useState([]);
     const [user, setUser] = useState(null);

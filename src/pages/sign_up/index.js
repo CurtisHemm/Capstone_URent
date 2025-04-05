@@ -1,8 +1,10 @@
+// Import
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';   
 
+// Page for registering a new user
 const SignUp = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);

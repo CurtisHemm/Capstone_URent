@@ -1,8 +1,10 @@
+// Imports
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useFetchPreferenceId } from "@/hooks/useFetchPreferenceId.js";
 import { useState, useEffect } from 'react';  
 import { motion } from "framer-motion";
 
+// Page for tenant getting matches
 const TenantMatches = () => {
     const { user } = useFetchUserSession();
     const { preferenceId } = useFetchPreferenceId(user?.user_id); 

@@ -1,23 +1,30 @@
+// Import
 import supabase from '@/lib/supabase';
 
+// API for adding a match to matches table
 export default async function handler(req, res) {
     console.log('Request Match Route reached');
 
+    // Check client
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
     }
 
+    // Request method
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // Body parameters
     const { preferenceId, listingId, enumType } = req.body;
 
+    // Check parameters
     if(!preferenceId || !listingId || !enumType) {
         return res.status(400).json({ error: "Missing either a preferenceId, listingId, or enumType"});
     }
 
     try {
+        // Insert match into table
         const { data, error } = await supabase
             .from("match_table")
             .insert([

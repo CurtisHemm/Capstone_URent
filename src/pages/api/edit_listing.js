@@ -1,25 +1,30 @@
+// Import
 import supabase from '@/lib/supabase';
 
+// API for editing listing
 export default async function handler(req, res) {
     console.log("Edit User Listing API Reached!");
 
+    // Check if client is initalized
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
     }
 
-
+    // Check if request method is correct
     if (req.method !== 'PUT') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // Body parameters
     const { listingId, data, photoUrl, latitude, longitude } = req.body;
 
-
+    // Check if parameters are empty or null
     if (!listingId || !data) {
         return res.status(400).json({ error: "Missing details"});
     }
     
     try {
+        // Find listing first
         const { data: listingData, listingError } = await supabase
             .from('listings_table')
             .select('listing_id')
@@ -30,6 +35,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Listing not found'});
         }
 
+        // Edit listing 
         const { error: updateError } = await supabase
             .from('listings_table')
             .update({ 

@@ -1,10 +1,13 @@
+// Imports
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useFetchLatLong } from '@/hooks/useFetchLatLong.js';
 
+// Placeholder img
 const PLACEHOLDER_PROFILE_IMG = 'https://enwbbyztboyashdtxocf.supabase.co/storage/v1/object/public/profile_images/pictures/placeholder.jpg';
 
+// Page for adding or editing preferences (Tenant profile)
 const preferences = () => {
     const [user, setUser] = useState(null);  
     const [preferenceId, setPreferenceId] = useState(null);

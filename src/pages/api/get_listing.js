@@ -1,23 +1,30 @@
+// Import
 import supabase from '@/lib/supabase';
 
+// API for getting every listing a user has
 export default async function handler(req, res) { 
     console.log("Get Listing API Route reached")
 
+    // Check client
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
     }
 
+    // Check request method
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // Query parameter
     const { userId } = req.query;
 
+    // Check parameter
     if (!userId) {
         return res.status(400).json({ error: "User ID is required" });
     }
 
     try {
+        // Get listings based off of user id
         const { data: listings, getListingsError } = await supabase
             .from('listings_table')
             .select('*')

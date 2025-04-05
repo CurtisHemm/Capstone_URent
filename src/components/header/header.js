@@ -4,14 +4,17 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const Header = () => {
-  const [user, setUser] = useState(null);
-  const [openDropdown, setOpenDropdown] = useState(null); 
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const router = useRouter();
+  const [user, setUser] = useState(null);                        // Stores user data
+  const [openDropdown, setOpenDropdown] = useState(null);        // Stores dropdown menu
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false); // Stores bool of when the mobile navbar is open
+  const router = useRouter();                                    // Next.js router instance
   
+  // useEffect for fetching user session data
   useEffect(() => {
     // Fetch the user session from an API route
     console.log("Fetching user session...");
+
+    // Fetch user session
     const fetchUser = async () => {
       try {
         const response = await fetch('/api/session', { credentials: 'include' });
@@ -23,30 +26,35 @@ const Header = () => {
       }
     };
 
+    // Run fetchUser function
     fetchUser();
   }, []);
 
+  // Fetches logout api to log user out, and remove user session, then refresh page 
   const handleLogout = async () => {
     await fetch('/api/logout', { method: 'POST', credentials: 'include' });
     setUser(null);
     window.location.reload();
   };
 
+  // Toggles the dropdown menu
   const toggleDropdown = (menu) => {
-
+    // If the menu is opened, close it, if it's closed, open it
     setOpenDropdown(openDropdown === menu ? null : menu);
   };
 
+  // 
   const handleLinkClick = (e) => {
-    setOpenDropdown(null);
-    setIsMobileNavOpen(false);
+    setOpenDropdown(null);           // Closes dropdown menus
+    setIsMobileNavOpen(false);       // Closes mobile navbar
     
-    if (e.metaKey || e.ctrlKey) return; 
+    if (e.metaKey || e.ctrlKey) return; // Allows for native behavior 
 
-    e.preventDefault();
-    router.push(e.currentTarget.getAttribute('href'));
+    e.preventDefault();                                      // Prevent default anchor behavior
+    router.push(e.currentTarget.getAttribute('href'));       // CS navigation
   };
 
+  // Toggle for mobile navbar 
   const toggleMobileNav = () => {
     setIsMobileNavOpen(!isMobileNavOpen);
     setOpenDropdown(null); 
@@ -55,9 +63,11 @@ const Header = () => {
     return (
       <header>
         <nav className="navbar">
+          {/* Mobile button so navbar doesn't take up half the screen */}
         <button className="mobile-menu-button" onClick={toggleMobileNav} aria-label="Toggle navigation">
           {isMobileNavOpen ? '✕' : '☰'}
         </button>
+          {/* Check if mobile navbar is open */}
           <ul className={`nav-links ${isMobileNavOpen ? 'mobile-show' : ''}`}>
             <li><Link href="/" onClick={() => setIsMobileNavOpen(false)}>Home</Link></li>      
             {user ? (

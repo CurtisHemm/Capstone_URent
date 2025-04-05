@@ -1,8 +1,10 @@
+// Imports
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useState, useEffect } from 'react';  
 import { motion } from "framer-motion";
 import { useRouter } from 'next/router';
 
+// Page for landlord matching with tenants
 const LandlordMatches = () => {
     const { user } = useFetchUserSession();
     const router = useRouter();
@@ -13,6 +15,7 @@ const LandlordMatches = () => {
     const [matches, setMatches] = useState([]);
     const [isAnimating, setIsAnimating] = useState(false);
 
+    // Call the get_matches api and get array of matches
     const startMatching = async () => {
         setIsMatching(true);
 
@@ -33,25 +36,31 @@ const LandlordMatches = () => {
         
     };
 
+    // Drag functionality when a user swipes, right, left, up, or down
     const handleDrag = async (event, info) => {
         if (isAnimating) return;
 
         const { x, y } = info.offset; 
         const threshold = 100; 
 
+        // Right
         if (Math.abs(x) > Math.abs(y)) {
             if (x > threshold) {
                 setIsAnimating(true);
                 await handleAccept();
                 
+            // Left    
             } else if (x < -threshold) {
                 setIsAnimating(true);
                 await handleDecline();
             }
+        
         } else {
+            // Up
             if (y < -threshold ) {
                 setIsAnimating(true);
                 handleSwipeUp();
+            // Down
             } else if (y > threshold ) {
                 setIsAnimating(true);
                 handleSwipeDown();
@@ -59,6 +68,7 @@ const LandlordMatches = () => {
         }
     };
 
+    // Accept the match
     const handleAccept = async () => {
         const responseMethod = matches[matchIndex].isPending ? "PUT" : "POST";
         const apiFileLocation = matches[matchIndex].isPending ? `/api/accept_decline_match` : `/api/request_match`;
@@ -96,6 +106,7 @@ const LandlordMatches = () => {
         }
     };
 
+    // Decline the match
     const handleDecline = async () => {
         const responseMethod = matches[matchIndex].isPending ? "PUT" : "POST";
         const apiFileLocation = matches[matchIndex]?.isPending ? `/api/accept_decline_match` : `/api/request_match`;
@@ -130,6 +141,7 @@ const LandlordMatches = () => {
         }
     };
 
+    // Move through match array
     const handleSwipeUp = () => {
         setExitDirection({ x: 0, y: -1000 });
         
@@ -140,6 +152,7 @@ const LandlordMatches = () => {
         }, 300);
     };
 
+    // Move back in match array
     const handleSwipeDown = () => {
         setExitDirection({ x: 0, y: 1000 });
         

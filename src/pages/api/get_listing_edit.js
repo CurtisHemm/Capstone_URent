@@ -1,23 +1,30 @@
+// Import
 import supabase from '@/lib/supabase';
 
+// API for getting listing to edit
 export default async function handler(req, res) { 
     console.log("Get Listing API Route reached")
 
+    // Check client
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
     }
 
+    // Check request method
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // Query parameter
     const { listing_id } = req.query;
 
+    // Check parameter
     if (!listing_id) {
         return res.status(400).json({ error: 'Missing listing_id parameter' });
     }
 
     try {
+        // Select listing with id
         const { data: listings, getListingsError } = await supabase
             .from('listings_table')
             .select('*')

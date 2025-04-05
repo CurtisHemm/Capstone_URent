@@ -1,9 +1,11 @@
+// Import
 import supabase from '@/lib/supabase';
 
+// API for adding preference
 export default async function handler(req, res) {
-
     console.log('API Route reached');
 
+    // Check if client is initalized
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
     }
@@ -13,12 +15,15 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // Body parameters
     const { data, userId, photoUrl, latitude, longitude } = req.body;
 
+    // Make sure none are empty
     if (!data || !userId) {
         return res.status(400).json({ error: "Invalid request: Missing data or userId"});
     }
 
+    // Get data from parameters. Made this when switching to hook forms and was having issues, not sure if I even need this
     const { 
         preferredName, 
         location, 
@@ -33,8 +38,7 @@ export default async function handler(req, res) {
     } = data;
 
     try {
-        console.log("Checking existing preference for user:", userId);
-
+        // Check for exisiting preference
         const { data: existingPreference, error: fetchError } = await supabase
             .from('preferences_table')
             .select('*')
@@ -50,6 +54,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "User already has a preference. Please update instead." });
         }
 
+        // Add preference
         const { data: newPreference, error: prefError } = await supabase
             .from('preferences_table')
             .insert([

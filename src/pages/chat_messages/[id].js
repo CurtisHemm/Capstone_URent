@@ -1,8 +1,10 @@
+// Imports
 import { useState, useRef, useEffect } from 'react';
 import { useFetchUserSession } from "@/hooks/useFetchUserSession.js";
 import { useRouter } from 'next/router';
 import useMessages from '@/hooks/useMessages';
 
+// Page for messaging
 export default function ChatPage() {
     const router = useRouter();
     const { id: senderId, receiver, is_landlord } = router.query;
@@ -10,6 +12,7 @@ export default function ChatPage() {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef(null);
 
+    // Start the useMessage features with the sender, landlord status, and receiver id
     const { messages, sendMessage } = useMessages(
         senderId,
         is_landlord === 'true',
@@ -18,6 +21,7 @@ export default function ChatPage() {
 
     console.log("Current messages in state:", messages);
 
+    // Sending meesage
     const handleSubmit = (e) => {
         e.preventDefault();
         if (input.trim()) {
@@ -26,6 +30,7 @@ export default function ChatPage() {
         }
     };
 
+    // Add scrolling
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);

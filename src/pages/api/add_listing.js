@@ -1,9 +1,11 @@
+// Import
 import supabase from '@/lib/supabase';
 
+// API for adding a listing to listings table
 export default async function handler(req, res) {
-
     console.log('API Route reached');
 
+    // Check if client is initalized
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
     }
@@ -13,12 +15,15 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // Body parameters
     const { data, userId, photoUrl, latitude, longitude } = req.body;
 
+    // Make sure none are empty
     if (!data || !userId) {
         return res.status(400).json({ error: "Invalid request: Missing data or userId"});
     }
 
+    // Get data from parameters. Made this when switching to hook forms and was having issues, not sure if I even need this
     const {
         streetAddress,
         listingLocation,
@@ -33,26 +38,25 @@ export default async function handler(req, res) {
         listingPrivate
     } = data;
 
-
+    // Add listing 
     try {
+        // Check if listing alreayd exists first
         const { data: existingListing, error: fetchError } = await supabase
             .from('listings_table')
             .select('*')
             .eq('street_address', streetAddress)
             .single();
 
-
         if (fetchError && fetchError.code !== 'PGRST116') {
             console.error("Error checking existing listings:", fetchError);
             return res.status(500).json({ error: "Error checking existing listing" });
         }
 
-
         if (existingListing) {
             return res.status(400).json({ error: "User already has a listing of the same address." });
         }
 
-
+        // Add listing
         const { data: newListing, error: listingError } = await supabase
             .from('listings_table')
             .insert([

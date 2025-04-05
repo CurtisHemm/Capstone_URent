@@ -1,9 +1,12 @@
+// Imports
 import bcrypt from 'bcryptjs';
 import supabase from '@/lib/supabase';
 
+// API for registering new user to user table
 export default async function handler(req, res) {
     console.log('API Route reached');
 
+    // Check client
     if (!supabase) {
         return res.status(500).json({ error: "Supabase client is not initialized" });
     }
@@ -13,16 +16,16 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // Values to insert
+    // Body parameters
     const { phoneNumber, firstName, lastName, email, password } = req.body;
 
     try {
-
         // Hashing password
         let hashedPassword;
         const salt = await bcrypt.genSalt(10);
         hashedPassword = await bcrypt.hash(password, salt);
 
+        // Insert user
         const { newUser, insertError  } = await supabase
                 .from('users_table')
                 .insert([
